@@ -1,14 +1,7 @@
 <?php
-
-$host = "localhost";
-$user = "root";
-$pass = "";
-$dbname = "kurakani";
-
-$conn = mysqli_connect($host, $user, $pass, $dbname);
+$conn = mysqli_connect("localhost", "root", "", "kurakani");
 
 if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
+    die("DB connection failed");
 }
-
 ?>
