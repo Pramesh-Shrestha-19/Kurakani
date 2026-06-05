@@ -1,359 +1,198 @@
-/* =========================================
-   GOOGLE FONT
-========================================= */
-
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-
-/* =========================================
-   RESET
-========================================= */
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
-}
-
-/* =========================================
-   BODY
-========================================= */
-
-html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
 }
 
 body {
+    font-family: 'Poppins', sans-serif;
+}
+
+/* PAGE */
+.login-page {
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
+    background: #e9ecef;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #e9ecef;
+    padding: 20px;
 }
 
-/* =========================================
-   MAIN CONTAINER
-========================================= */
-
+/* MAIN CONTAINER */
 .auth-container {
-    width: 88%;
-    height: 90vh;
-    display: flex;
-    overflow: hidden;
-    border-radius: 28px;
+    width: 100%;
+    max-width: 1250px;
+    min-height: 650px;
     background: white;
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.10);
-    border: none;
-    outline: none;
+    border-radius: 30px;
+    overflow: hidden;
+    display: flex;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
 }
 
-/* =========================================
-   LEFT PANEL
-========================================= */
+/* LEFT PANEL */
+.auth-left-panel {
+    width: 45%;
+    background: linear-gradient(160deg, #14b8b1, #1dcac2, #67dfda);
+    position: relative;
 
-.left-panel {
-    width: 38%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
     padding: 40px;
-    background: linear-gradient(160deg, #14b8b1, #19c7bf, #6fe4df);
     color: white;
-    position: relative;
     overflow: hidden;
-    border: none;
-    outline: none;
 }
 
-.left-panel::before {
+/* decorative circles */
+.auth-left-panel::before {
     content: "";
     position: absolute;
-    width: 300px;
-    height: 300px;
-    background: rgba(255, 255, 255, 0.08);
+    width: 320px;
+    height: 320px;
     border-radius: 50%;
-    top: -100px;
-    left: -100px;
+    background: rgba(255,255,255,0.08);
+    top: -120px;
+    left: -120px;
 }
 
-.left-panel::after {
+.auth-left-panel::after {
     content: "";
     position: absolute;
-    width: 250px;
-    height: 250px;
-    background: rgba(255, 255, 255, 0.06);
+    width: 260px;
+    height: 260px;
     border-radius: 50%;
-    bottom: -80px;
-    right: -80px;
+    background: rgba(255,255,255,0.08);
+    bottom: -100px;
+    right: -100px;
 }
-
-/* =========================================
-   LOGO
-========================================= */
 
 .logo {
-    width: 190px;
+    width: 120px;
     margin-bottom: 25px;
     z-index: 2;
-    filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.18));
 }
 
-/* =========================================
-   LEFT TEXT
-========================================= */
-
-.left-panel h1 {
-    font-size: 52px;
+.auth-left-panel h1 {
+    font-size: 72px;
     font-weight: 700;
     margin-bottom: 15px;
     z-index: 2;
 }
 
-.left-panel p {
-    font-size: 20px;
+.auth-left-panel p {
+    font-size: 22px;
     text-align: center;
     line-height: 1.7;
-    color: rgba(255, 255, 255, 0.92);
     z-index: 2;
 }
 
-/* =========================================
-   RIGHT PANEL
-========================================= */
-
-.right-panel {
+/* RIGHT PANEL */
+.auth-right-panel {
     flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
     background: white;
-    padding: 40px;
-    border: none;
-    outline: none;
-    box-shadow: none;
+    padding: 60px;
 }
 
-/* =========================================
-   AUTH CARD
-========================================= */
-
+/* CARD */
 .auth-card {
-    width: 460px;
-    background: white;
-    border-radius: 24px;
-    padding: 45px 50px;
-    border: 1px solid rgba(20, 184, 177, 0.15);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-    transition: 0.3s;
+    width: 100%;
+    max-width: 470px;
 }
 
-.auth-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.10);
-}
-
-/* =========================================
-   TITLE
-========================================= */
-
+/* TITLE */
 .auth-card h2 {
-    text-align: center;
-    margin-bottom: 40px;
-    font-size: 36px;
+    font-size: 60px;
+    font-weight: 700;
     color: #14b8b1;
+    text-align: center;
+    margin-bottom: 50px;
 }
 
-/* =========================================
-   INPUT GROUP
-========================================= */
-
+/* INPUT GROUP */
 .input-group {
     position: relative;
-    margin-bottom: 25px;
-    border-bottom: 2px solid #d7efee;
+    margin-bottom: 40px;
 }
-
-/* =========================================
-   INPUT
-========================================= */
 
 .input-group input {
     width: 100%;
-    height: 55px;
+    height: 60px;
     border: none;
+    border-bottom: 2px solid #d7efee;
     outline: none;
-    background: none;
-    font-size: 16px;
+    background: transparent;
+    font-size: 18px;
     color: #333;
-    padding-right: 35px;
-    box-shadow: none;
-    -webkit-appearance: none;
+    padding-right: 45px;
+    font-family: 'Poppins', sans-serif;
 }
-
-.input-group input:focus {
-    border: none;
-    outline: none;
-    box-shadow: none;
-}
-
-/* =========================================
-   LABEL
-========================================= */
 
 .input-group label {
     position: absolute;
-    top: 50%;
+    top: 18px;
     left: 0;
-    transform: translateY(-50%);
     color: #888;
+    font-size: 18px;
     transition: 0.3s;
     pointer-events: none;
 }
 
+/* floating labels */
 .input-group input:focus ~ label,
-.input-group input:valid ~ label {
-    top: -10px;
-    font-size: 13px;
+.input-group input:not(:placeholder-shown) ~ label {
+    top: -12px;
+    font-size: 14px;
     color: #14b8b1;
 }
 
-/* =========================================
-   PASSWORD ICON
-========================================= */
+.input-group input:focus {
+    border-bottom: 2px solid #14b8b1;
+}
 
+/* PASSWORD ICON */
 .toggle-password {
     position: absolute;
     right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
+    top: 18px;
+    font-size: 22px;
     color: #14b8b1;
-    font-size: 20px;
-}
-
-/* =========================================
-   OPTIONS
-========================================= */
-
-.auth-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-    font-size: 14px;
-    color: #555;
-}
-
-.auth-options a {
-    color: #14b8b1;
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.auth-options a:hover {
-    text-decoration: underline;
-}
-
-/* =========================================
-   CUSTOM CHECKBOX
-========================================= */
-
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
     cursor: pointer;
-    font-size: 14px;
-    color: #555;
-    user-select: none;
 }
 
-.custom-checkbox {
-    position: relative;
-    width: 18px;
-    height: 18px;
-}
-
-.custom-checkbox input[type="checkbox"] {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
-    margin: 0;
-    padding: 0;
-}
-
-.checkmark {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 18px;
-    height: 18px;
-    border: 2px solid #14b8b1;
-    border-radius: 4px;
-    background: white;
-    transition: 0.2s;
-}
-
-.custom-checkbox input[type="checkbox"]:checked ~ .checkmark {
-    background: #14b8b1;
-    border-color: #14b8b1;
-}
-
-.checkmark::after {
-    content: "";
-    position: absolute;
-    display: none;
-    left: 4px;
-    top: 1px;
-    width: 5px;
-    height: 9px;
-    border: solid white;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
-}
-
-.custom-checkbox input[type="checkbox"]:checked ~ .checkmark::after {
-    display: block;
-}
-
-/* =========================================
-   BUTTON
-========================================= */
-
+/* BUTTON */
 button {
     width: 100%;
-    height: 52px;
+    height: 60px;
     border: none;
-    outline: none;
     border-radius: 40px;
     background: linear-gradient(135deg, #14b8b1, #19c7bf);
     color: white;
-    font-size: 17px;
+    font-size: 22px;
     font-weight: 600;
     cursor: pointer;
     transition: 0.3s;
+    margin-top: 10px;
 }
 
 button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 18px rgba(20, 184, 177, 0.25);
+    box-shadow: 0 8px 20px rgba(20, 184, 177, 0.25);
 }
 
-/* =========================================
-   SWITCH TEXT
-========================================= */
-
+/* SWITCH TEXT */
 .switch-text {
-    margin-top: 25px;
+    margin-top: 30px;
     text-align: center;
-    font-size: 15px;
+    font-size: 18px;
     color: #666;
 }
 
@@ -367,75 +206,63 @@ button:hover {
     text-decoration: underline;
 }
 
-/* =========================================
-   HIDDEN
-========================================= */
-
-.hidden {
-    display: none;
-}
-
-/* =========================================
-   REMOVE CHROME AUTO-FILL BLUE BACKGROUND
-========================================= */
-
+/* AUTOFILL FIX */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-    -webkit-box-shadow: 0 0 0 1000px #fff inset !important;
+    -webkit-box-shadow: 0 0 0 1000px white inset !important;
     -webkit-text-fill-color: #000 !important;
-    transition: background-color 5000s ease-in-out 0s;
 }
 
-/* =========================================
-   RESPONSIVE
-========================================= */
-
+/* RESPONSIVE */
 @media (max-width: 950px) {
+
     .auth-container {
         flex-direction: column;
-        height: auto;
-        width: 95%;
     }
 
-    .left-panel {
+    .auth-left-panel {
         width: 100%;
-        padding: 50px 20px;
+        min-height: 320px;
     }
 
-    .right-panel {
-        padding: 40px 20px;
+    .auth-right-panel {
+        padding: 40px 25px;
     }
 
-    .auth-card {
-        width: 100%;
-        max-width: 420px;
+    .auth-left-panel h1 {
+        font-size: 52px;
     }
 
-    .left-panel h1 {
-        font-size: 42px;
-    }
-
-    .left-panel p {
+    .auth-left-panel p {
         font-size: 18px;
+    }
+
+    .auth-card h2 {
+        font-size: 46px;
     }
 }
 
 @media (max-width: 500px) {
-    .auth-card {
-        padding: 35px 25px;
+
+    .auth-left-panel h1 {
+        font-size: 42px;
+    }
+
+    .auth-left-panel p {
+        font-size: 16px;
     }
 
     .auth-card h2 {
-        font-size: 30px;
+        font-size: 38px;
     }
 
-    .left-panel h1 {
-        font-size: 36px;
+    .input-group input {
+        font-size: 16px;
     }
 
-    .logo {
-        width: 150px;
+    button {
+        font-size: 18px;
     }
 }
