@@ -27,7 +27,16 @@ export default function Chat() {
 
   const user = JSON.parse(localStorage.getItem("user"));
 
+  const [onlineUsers, setOnlineUsers] = useState([]);
+  const [typingUser, setTypingUser] = useState(null);
+
   if (!user) return null;
+
+  useEffect(() => {
+    if (user?._id) {
+      socket.emit("user_online", user._id);
+    }
+  }, [user]);
 
   const getConfig = () => ({
     headers: {
@@ -74,6 +83,13 @@ export default function Chat() {
     console.log("Joined room:", activeChat._id);
   }, [activeChat]);
 
+  // user online
+  useEffect(() => {
+    if (user?._id) {
+      socket.emit("user_online", user._id);
+    }
+  }, [user]);
+
   // AUTO SCROLL
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -91,6 +107,35 @@ export default function Chat() {
 
     return () => {
       socket.off("receive_message");
+    };
+  }, [activeChat]);
+
+  useEffect(() => {
+    socket.on("online_users", (users) => {
+      setOnlineUsers(users);
+    });
+
+    return () => {
+      socket.off("online_users");
+    };
+  }, []);
+
+  useEffect(() => {
+    socket.on("typing_show", ({ chatId, userName }) => {
+      if (chatId === activeChat?._id) {
+        setTypingUser(userName);
+      }
+    });
+
+    socket.on("typing_hide", ({ chatId }) => {
+      if (chatId === activeChat?._id) {
+        setTypingUser(null);
+      }
+    });
+
+    return () => {
+      socket.off("typing_show");
+      socket.off("typing_hide");
     };
   }, [activeChat]);
 
@@ -190,6 +235,7 @@ export default function Chat() {
         <div className="chat-list">
           {chats.map((chat) => {
             const other = getOtherUser(chat);
+            const isOnline = onlineUsers.includes(other?._id);
             return (
               <div
                 key={chat._id}
@@ -203,9 +249,20 @@ export default function Chat() {
                 </div>
                 <div className="chat-info">
                   <div className="chat-top">
-                    <span className="chat-name">
-                      {other?.name || "Unknown"}
-                    </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <span className="chat-name">
+                        {other?.name || "Unknown"}
+                      </span>
+
+                      <span
+                        style={{
+                          fontSize: "10px",
+                          color: isOnline ? "limegreen" : "gray"
+                        }}
+                      >
+                        ●
+                      </span>
+                    </div>
                   </div>
                   <div className="chat-bottom">
                     <span className="chat-preview">Click to open chat</span>
@@ -227,7 +284,12 @@ export default function Chat() {
             <div className="header-name">
               {contact?.name || "Select a chat"}
             </div>
-            <div className="header-status">● Active now</div>
+            <div className="header-status">
+              {contact && onlineUsers.includes(contact._id?.toString())
+                ? <span style={{ color: "limegreen" }}>● Active now</span>
+                : <span style={{ color: "gray" }}>● Offline</span>
+              }
+            </div>
           </div>
           <div className="header-actions">
             <button className="action-btn">
@@ -246,6 +308,12 @@ export default function Chat() {
           <div className="date-divider">
             <span className="date-chip">Today</span>
           </div>
+          
+          {typingUser && (
+            <div style={{ fontSize: "12px", color: "gray", marginBottom: "5px" }}>
+              {typingUser} is typing...
+            </div>
+          )}
 
           {messages.map((m) => {
             const senderId =
@@ -292,7 +360,22 @@ export default function Chat() {
               rows={1}
               placeholder="Type a message..."
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(e) => {
+                setInput(e.target.value);
+
+                socket.emit("typing_start", {
+                  chatId: activeChat._id,
+                  userName: user.name,
+                });
+
+                clearTimeout(window.typingTimeout);
+
+                window.typingTimeout = setTimeout(() => {
+                  socket.emit("typing_stop", {
+                    chatId: activeChat._id,
+                  });
+                }, 1000);
+              }}
               onKeyDown={handleKeyDown}
             />
             <button className="send-btn" onClick={sendMessage}>
@@ -321,7 +404,7 @@ export default function Chat() {
           </div>
         </div>
 
-        <div className="panel-item">
+        {/* <div className="panel-item">
           <div className="panel-item-label">Emoji</div>
           <div className="panel-chips">
             {["Default", "Classic", "Fluent"].map((e) => (
@@ -334,7 +417,7 @@ export default function Chat() {
               </span>
             ))}
           </div>
-        </div>
+        </div> */}
 
         <div className="panel-item">
           <div className="panel-item-label">Nickname</div>
