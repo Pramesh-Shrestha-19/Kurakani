@@ -32,3 +32,29 @@ export const getMessages = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Mark messages as sen
+export const markAsSeen = async (req, res) => {
+  try {
+    const { chatId } = req.params;
+
+    await Message.updateMany(
+      {
+        chatId,
+        sender: { $ne: req.user._id }, // only other person's messages
+        seen: false,
+      },
+      {
+        seen: true,
+      }
+    );
+
+    res.status(200).json({
+      message: "Messages marked as seen",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};

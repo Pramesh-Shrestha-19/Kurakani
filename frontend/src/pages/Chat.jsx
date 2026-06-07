@@ -60,21 +60,41 @@ export default function Chat() {
   // LOAD MESSAGES
   useEffect(() => {
     if (!activeChat?._id) return;
+
     const fetchMessages = async () => {
       try {
+        // Get messages
         const res = await axios.get(
           `${API}/message/${activeChat._id}`,
           getConfig()
         );
+
         setMessages(res.data);
+
+        // Mark messages as seen
+        await axios.put(
+          `${API}/message/seen/${activeChat._id}`,
+          {},
+          getConfig()
+        );
+
+        // Fetch updated messages (with seen=true)
+        const updated = await axios.get(
+          `${API}/message/${activeChat._id}`,
+          getConfig()
+        );
+
+        setMessages(updated.data);
+
       } catch (err) {
         console.log(err);
       }
     };
+
     fetchMessages();
   }, [activeChat]);
 
-  // JOIN SOCKET ROOM
+  // JOIN SOCKE ROOM
   useEffect(() => {
     if (!activeChat?._id) return;
 
@@ -336,9 +356,8 @@ export default function Chat() {
                       minute: "2-digit",
                     })}
                     {isOwn && (
-                      <ion-icon
-                        name="checkmark-done-outline"
-                        style={{ color: "#53bdeb", marginLeft: "4px" }}
+                      <ion-icon name={m.seen ? "checkmark-done-outline" : "checkmark-outline"}
+                        style={{ color: m.seen ? "#53bdeb" : "gray", marginLeft: "4px",}}
                       ></ion-icon>
                     )}
                   </div>
