@@ -38,6 +38,7 @@ router.post("/", protect, async (req, res) => {
       console.log("✅ CHAT CREATED:", chat);
     }
 
+    await chat.populate("members", "-password");
     res.status(200).json(chat);
 
   } catch (error) {

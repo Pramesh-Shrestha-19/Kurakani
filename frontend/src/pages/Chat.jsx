@@ -31,13 +31,17 @@ export default function Chat() {
   const [typingUser, setTypingUser] = useState(null);
   const [showSidebar, setShowSidebar] = useState(true);
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [userResults, setUserResults] = useState([]);
+  const [searching, setSearching] = useState(false);
+
   if (!user) return null;
 
   useEffect(() => {
-    if (user?._id) {
-      socket.emit("user_online", user._id);
-    }
-  }, [user]);
+    if (!user?._id) return;
+
+    socket.emit("user_online", user._id);
+  }, []);
 
   const getConfig = () => ({
     headers: {
@@ -103,13 +107,6 @@ export default function Chat() {
 
     console.log("Joined room:", activeChat._id);
   }, [activeChat]);
-
-  // user online
-  useEffect(() => {
-    if (user?._id) {
-      socket.emit("user_online", user._id);
-    }
-  }, [user]);
 
   // AUTO SCROLL
   useEffect(() => {
@@ -188,6 +185,34 @@ export default function Chat() {
     }
   };
 
+  const handleSearch = async (val) => {
+    setSearchQuery(val);
+    if (!val.trim()) { setSearching(false); setUserResults([]); return; }
+    setSearching(true);
+    try {
+      const res = await axios.get(`${API}/users?search=${val}`, getConfig());
+      setUserResults(res.data);
+    } catch (err) { console.log(err); }
+  };
+
+  const openOrCreateChat = async (targetUser) => {
+    setSearching(false);
+    setUserResults([]);
+    setSearchQuery("");
+    const existing = chats.find((c) =>
+      c.members.some((m) => {
+        const id = typeof m === "object" ? m._id?.toString() : m?.toString();
+        return id === targetUser._id.toString();
+      })
+    );
+    if (existing) { setActiveChat(existing); return; }
+    try {
+      const res = await axios.post(`${API}/chat`, { userId: targetUser._id }, getConfig());
+      setChats((prev) => [res.data, ...prev]);
+      setActiveChat(res.data);
+    } catch (err) { console.log(err); }
+  };
+
   const getOtherUser = (chat) =>
     chat?.members?.find((m) => {
       const memberId =
@@ -243,7 +268,10 @@ export default function Chat() {
           <h1>Chats</h1>
           <div className="search-box">
             <ion-icon name="search-outline" className="search-icon"></ion-icon>
-            <input placeholder="Search chats..." />
+            <input placeholder="Search chats or users..." value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              onBlur={() => setTimeout(() => { setSearching(false); setUserResults([]); setSearchQuery(""); }, 200)}
+            />
           </div>
         </div>
 
@@ -260,44 +288,46 @@ export default function Chat() {
         </div>
 
         <div className="chat-list">
-          {chats.map((chat) => {
-            const other = getOtherUser(chat);
-            const isOnline = onlineUsers.includes(other?._id);
-            return (
-              <div
-                key={chat._id}
-                className={`chat-item${
-                  activeChat?._id === chat._id ? " active" : ""
-                }`}
-                onClick={() => setActiveChat(chat)}
-              >
-                <div className="chat-avatar">
-                  {other?.name?.charAt(0) || "U"}
+          {searching ? (
+            userResults.length === 0 ? (
+              <div style={{ padding: "12px", color: "gray", fontSize: "13px" }}>No users found</div>
+            ) : (
+              userResults.map((u) => (
+                <div key={u._id} className="chat-item" onClick={() => openOrCreateChat(u)}>
+                  <div className="chat-avatar">{u.name.charAt(0)}</div>
+                  <div className="chat-info">
+                    <div className="chat-top"><span className="chat-name">{u.name}</span></div>
+                    <div className="chat-bottom"><span className="chat-preview">{u.email}</span></div>
+                  </div>
                 </div>
-                <div className="chat-info">
-                  <div className="chat-top">
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <span className="chat-name">
-                        {other?.name || "Unknown"}
-                      </span>
-
-                      <span
-                        style={{
-                          fontSize: "10px",
-                          color: isOnline ? "limegreen" : "gray"
-                        }}
-                      >
-                        ●
-                      </span>
+              ))
+            )
+          ) : (
+            chats.map((chat) => {
+              const other = getOtherUser(chat);
+              const isOnline = onlineUsers.includes(other?._id);
+              return (
+                <div
+                  key={chat._id}
+                  className={`chat-item${activeChat?._id === chat._id ? " active" : ""}`}
+                  onClick={() => setActiveChat(chat)}
+                >
+                  <div className="chat-avatar">{other?.name?.charAt(0) || "U"}</div>
+                  <div className="chat-info">
+                    <div className="chat-top">
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span className="chat-name">{other?.name || "Unknown"}</span>
+                        <span style={{ fontSize: "10px", color: isOnline ? "limegreen" : "gray" }}>●</span>
+                      </div>
+                    </div>
+                    <div className="chat-bottom">
+                      <span className="chat-preview">Click to open chat</span>
                     </div>
                   </div>
-                  <div className="chat-bottom">
-                    <span className="chat-preview">Click to open chat</span>
-                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
       </aside>
 

@@ -8,6 +8,7 @@ import messageRoutes from "./routes/messageRoutes.js";
 import http from "http";
 import { Server } from "socket.io";
 import { initializeSocket } from "./socket/socket.js";
+import userRoutes from "./routes/userRoutes.js";
 
 dotenv.config();
 
@@ -33,6 +34,9 @@ app.use("/api/message", messageRoutes);
 app.get("/", (req, res) => {
   res.send("Kurakani API Running");
 });
+
+// search users
+app.use("/api/users", userRoutes);
 
 const server = http.createServer(app);
 
