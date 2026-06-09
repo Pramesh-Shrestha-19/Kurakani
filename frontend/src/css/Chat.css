@@ -531,3 +531,78 @@ body { font-family: 'Nunito', sans-serif; }
 }
 
 .toggle.on .toggle-thumb { transform: translateX(16px); }
+
+.sidebar {
+  transition: all 0.3s ease;
+}
+
+.sidebar.collapsed {
+  width: 0;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0;
+  border: none;
+}
+
+.forgot-password {
+  text-align: right;
+  margin-top: -5px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: #00a884;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
+}
+
+.sidebar {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.sidebar-toggle {
+  position: absolute;
+  top: 50%;
+  right: -18px;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 52px;
+  border: none;
+  background: #00a884;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 0 8px 8px 0;
+  font-size: 14px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 0 6px rgba(0,0,0,0.15);
+  transition: background 0.15s;
+}
+
+.sidebar-toggle:hover {
+  background: #008f72;
+  right: -18px;
+  transform: translateY(-50%);
+}
+
+/* collapsed state */
+.sidebar.collapsed {
+  width: 0;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0;
+  border: none;
+}
+
+.sidebar.collapsed {
+  width: 0;
+  min-width: 0;
+  overflow: visible;
+  padding: 0;
+  border: none;
+}

@@ -29,6 +29,7 @@ export default function Chat() {
 
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [typingUser, setTypingUser] = useState(null);
+  const [showSidebar, setShowSidebar] = useState(true);
 
   if (!user) return null;
 
@@ -231,8 +232,14 @@ export default function Chat() {
       </nav>
 
       {/* SIDEBAR */}
-      <aside className="sidebar">
-        <div className="sidebar-header">
+        <aside className={`sidebar ${showSidebar ? "" : "collapsed"}`}>
+          <button
+            className="sidebar-toggle"
+            onClick={() => setShowSidebar(!showSidebar)}
+          >
+            <ion-icon name={showSidebar ? "chevron-back-outline" : "chevron-forward-outline"}></ion-icon>
+          </button>
+          <div className="sidebar-header">
           <h1>Chats</h1>
           <div className="search-box">
             <ion-icon name="search-outline" className="search-icon"></ion-icon>
@@ -312,16 +319,28 @@ export default function Chat() {
             </div>
           </div>
           <div className="header-actions">
-            <button className="action-btn">
-              <ion-icon name="call-outline"></ion-icon>
-            </button>
-            <button className="action-btn">
-              <ion-icon name="videocam-outline"></ion-icon>
-            </button>
-            <button className="action-btn">
-              <ion-icon name="ellipsis-horizontal-outline"></ion-icon>
-            </button>
-          </div>
+
+          {/* Toggle Chat List */}
+          {/* <button
+            className="action-btn"
+            onClick={() => setShowSidebar(!showSidebar)}
+          >
+            <ion-icon name="menu-outline"></ion-icon>
+          </button> */}
+
+          <button className="action-btn">
+            <ion-icon name="call-outline"></ion-icon>
+          </button>
+
+          <button className="action-btn">
+            <ion-icon name="videocam-outline"></ion-icon>
+          </button>
+
+          <button className="action-btn">
+            <ion-icon name="ellipsis-horizontal-outline"></ion-icon>
+          </button>
+
+        </div>
         </header>
 
         <div className="messages">

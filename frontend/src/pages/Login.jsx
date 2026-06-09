@@ -101,6 +101,15 @@ function Login() {
                   ></ion-icon>
                 </div>
 
+                <p
+                  className="forgot-password"
+                  onClick={() => {
+                    console.log("Forgot Password clicked");
+                  }}
+                >
+                  Forgot Password?
+                </p>
+
                 <button type="submit">Login</button>
 
                 <p className="switch-text">
