@@ -3,7 +3,7 @@ import axios from "axios";
 import socket from "../socket/socket";
 import "../css/Chat.css";
 
-const API = "http://localhost:5000/api";
+const API = import.meta.env.VITE_API_URL;
 
 function getNow() {
   return new Date().toLocaleTimeString([], {
@@ -40,8 +40,21 @@ export default function Chat() {
   useEffect(() => {
     if (!user?._id) return;
 
-    socket.emit("user_online", user._id);
-  }, []);
+    const handleConnect = () => {
+      socket.emit("user_online", user._id);
+    };
+
+    socket.on("connect", handleConnect);
+
+    // If user is already connected, emit immediately
+    if (socket.connected) {
+      socket.emit("user_online", user._id);
+    }
+
+    return () => {
+      socket.off("connect", handleConnect);
+    };
+  }, [user]);
 
   const getConfig = () => ({
     headers: {
