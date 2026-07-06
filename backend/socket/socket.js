@@ -13,7 +13,7 @@ export const initializeSocket = (io) => {
       io.emit("online_users", Object.keys(onlineUsers));
     });
 
-    // JOIN CHAT ROOM
+    // Join chat room
     socket.on("join_chat", (chatId) => {
       socket.join(chatId);
     });

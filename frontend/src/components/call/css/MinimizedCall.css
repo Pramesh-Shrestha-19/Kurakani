@@ -1,0 +1,147 @@
+.mini-call{
+
+    position:fixed;
+
+    bottom:25px;
+
+    right:25px;
+
+    width:280px;
+
+    height:75px;
+
+    background:white;
+
+    border-radius:20px;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.18);
+
+    border:1px solid #d7efee;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:15px;
+
+    z-index:6000;
+
+    animation:miniShow .25s ease;
+
+}
+
+.mini-call-info{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    cursor:pointer;
+
+    flex:1;
+
+}
+
+.mini-avatar{
+
+    width:48px;
+
+    height:48px;
+
+    border-radius:50%;
+
+    background:#14b8b1;
+
+    color:white;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:18px;
+
+    font-weight:600;
+
+}
+
+.mini-call h4{
+
+    font-size:15px;
+
+}
+
+.mini-call span{
+
+    font-size:12px;
+
+    color:#777;
+
+}
+
+.mini-buttons{
+
+    display:flex;
+
+    gap:10px;
+
+}
+
+.mini-btn{
+
+    width:40px;
+
+    height:40px;
+
+    border:none;
+
+    border-radius:50%;
+
+    cursor:pointer;
+
+    background:#f5f5f5;
+
+    transition:.2s;
+
+}
+
+.mini-btn:hover{
+
+    background:#14b8b1;
+
+    color:white;
+
+}
+
+.mini-btn.end{
+
+    background:#ef4444;
+
+    color:white;
+
+}
+
+@keyframes miniShow{
+
+from{
+
+opacity:0;
+
+transform:translateY(20px);
+
+}
+
+to{
+
+opacity:1;
+
+transform:translateY(0);
+
+}
+
+}

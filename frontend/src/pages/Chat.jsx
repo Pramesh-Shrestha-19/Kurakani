@@ -2,6 +2,9 @@ import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import socket from "../socket/socket";
 import "../css/Chat.css";
+import { useNavigate } from "react-router-dom";
+import CallWindow from "../components/call/CallWindow";
+import { CALL_TYPE } from "../constants/callConstants";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -13,6 +16,7 @@ function getNow() {
 }
 
 export default function Chat() {
+  const navigate = useNavigate();
   const [chats, setChats] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -35,6 +39,8 @@ export default function Chat() {
   const [userResults, setUserResults] = useState([]);
   const [searching, setSearching] = useState(false);
 
+  const [showCallWindow, setShowCallWindow] = useState(false);
+
   if (!user) return null;
 
   useEffect(() => {
@@ -46,9 +52,10 @@ export default function Chat() {
 
     socket.on("connect", handleConnect);
 
-    // If user is already connected, emit immediately
     if (socket.connected) {
       socket.emit("user_online", user._id);
+    } else {
+      socket.connect();
     }
 
     return () => {
@@ -62,7 +69,15 @@ export default function Chat() {
     },
   });
 
-  // LOAD CHATS
+  //logout 
+  const handleLogout = () => {
+    socket.disconnect();
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/");
+  };
+
+  // Load chat
   useEffect(() => {
     const fetchChats = async () => {
       try {
@@ -264,6 +279,10 @@ export default function Chat() {
 
         <div className="nav-spacer" />
 
+        <div className="nav-item" title="log-out" onClick={handleLogout}>
+          <ion-icon name="log-out-outline"></ion-icon>
+        </div>
+
         <div className="nav-item" title="Settings">
           <ion-icon name="settings-outline"></ion-icon>
         </div>
@@ -371,11 +390,17 @@ export default function Chat() {
             <ion-icon name="menu-outline"></ion-icon>
           </button> */}
 
-          <button className="action-btn">
+          <button
+            className="action-btn"
+            onClick={() => setShowCallWindow(true)}
+          >
             <ion-icon name="call-outline"></ion-icon>
           </button>
 
-          <button className="action-btn">
+          <button
+            className="action-btn"
+            onClick={() => setShowCallWindow(true)}
+          >
             <ion-icon name="videocam-outline"></ion-icon>
           </button>
 
@@ -517,6 +542,18 @@ export default function Chat() {
           </div>
         </div>
       </aside>
+
+      <CallWindow
+          isOpen={showCallWindow}
+          type={CALL_TYPE.VOICE}
+          status="calling"
+          user={{
+              name: contact?.name || "Unknown",
+              avatar: ""
+          }}
+          onClose={() => setShowCallWindow(false)}
+      />
+
     </div>
   );
 }

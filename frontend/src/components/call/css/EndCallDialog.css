@@ -1,0 +1,115 @@
+.end-dialog-overlay{
+
+    position:absolute;
+
+    inset:0;
+
+    background:rgba(0,0,0,.18);
+
+    backdrop-filter:blur(3px);
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    z-index:100;
+
+}
+
+.end-dialog{
+
+    width:380px;
+
+    background:white;
+
+    border-radius:22px;
+
+    padding:30px;
+
+    text-align:center;
+
+    box-shadow:0 12px 35px rgba(0,0,0,.2);
+
+    animation:dialogPop .2s ease;
+
+}
+
+.end-dialog h2{
+
+    color:#222;
+
+    margin-bottom:15px;
+
+}
+
+.end-dialog p{
+
+    color:#666;
+
+    line-height:1.6;
+
+}
+
+.dialog-buttons{
+
+    display:flex;
+
+    gap:15px;
+
+    margin-top:30px;
+
+}
+
+.cancel-btn{
+
+    flex:1;
+
+    background:white;
+
+    color:#14b8b1;
+
+    border:2px solid #14b8b1;
+
+}
+
+.cancel-btn:hover{
+
+    background:#f4fffe;
+
+}
+
+.end-btn{
+
+    flex:1;
+
+    background:#ef4444;
+
+}
+
+.end-btn:hover{
+
+    background:#db2626;
+
+}
+
+@keyframes dialogPop{
+
+from{
+
+transform:scale(.92);
+
+opacity:0;
+
+}
+
+to{
+
+transform:scale(1);
+
+opacity:1;
+
+}
+
+}

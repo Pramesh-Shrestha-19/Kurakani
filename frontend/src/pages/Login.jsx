@@ -15,6 +15,9 @@ function Login() {
   const [showRegPassword, setShowRegPassword] = useState(false);
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [registerSuccess, setRegisterSuccess] = useState("");
+  const [registerError, setRegisterError] = useState("");
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -27,7 +30,12 @@ function Login() {
     console.log("REGISTER RESPONSE:", data);
 
     if (res.status === 201) {
-      navigate("/");
+      setRegisterSuccess("Registered successfully! Please login.");
+      setRegisterError("");
+      setTimeout(() => setIsLogin(true), 1500);
+    } else {
+      setRegisterError(data.message || "Registration failed");
+      setRegisterSuccess("");
     }
   };
 
@@ -46,6 +54,8 @@ function Login() {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
         navigate("/chat");
+      } else {
+        setLoginError(data.message || "Invalid email or password");
       }
     } catch (error) {
       console.log(error);
@@ -83,7 +93,7 @@ function Login() {
                     type="email"
                     required
                     value={loginEmail}
-                    onChange={(e) => setLoginEmail(e.target.value)}
+                    onChange={(e) => { setLoginEmail(e.target.value); setLoginError(""); }}
                   />
                   <label>E-mail</label>
                 </div>
@@ -93,7 +103,7 @@ function Login() {
                     type={showPassword ? "text" : "password"}
                     required
                     value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
+                    onChange={(e) => { setLoginPassword(e.target.value); setLoginError(""); }}
                   />
                   <label>Password</label>
                   <ion-icon
@@ -112,6 +122,11 @@ function Login() {
                   Forgot Password?
                 </p>
 
+                {loginError && (
+                  <p style={{ color: "#e53935", fontSize: "13px", marginBottom: "8px", textAlign: "center" }}>
+                    {loginError}
+                  </p>
+                )}
                 <button type="submit">Login</button>
 
                 <p className="switch-text">
@@ -162,6 +177,16 @@ function Login() {
                   ></ion-icon>
                 </div>
 
+                {registerSuccess && (
+                  <p style={{ color: "#00a884", fontSize: "13px", marginBottom: "8px", textAlign: "center" }}>
+                    {registerSuccess}
+                  </p>
+                )}
+                {registerError && (
+                  <p style={{ color: "#e53935", fontSize: "13px", marginBottom: "8px", textAlign: "center" }}>
+                    {registerError}
+                  </p>
+                )}
                 <button type="submit">Register</button>
 
                 <p className="switch-text">
