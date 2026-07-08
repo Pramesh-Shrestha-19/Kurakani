@@ -10,6 +10,7 @@ export const CALL_TYPE = {
 };
 
 export const CALL_STATUS = {
+    INCOMING: "incoming",
     CALLING: "calling",
     RINGING: "ringing",
     CONNECTING: "connecting",

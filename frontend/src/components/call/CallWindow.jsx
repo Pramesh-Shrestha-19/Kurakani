@@ -7,6 +7,7 @@ import VideoCall from "./VideoCall";
 import CallControls from "./CallControls";
 import MinimizedCall from "./MinimizedCall";
 import EndCallDialog from "./EndCallDialog";
+import IncomingCall from "./IncomingCall";
 import {
     WINDOW_STATE,
     CALL_TYPE,
@@ -23,9 +24,12 @@ function CallWindow({
 }) {
 
     const [windowState, setWindowState] = useState(WINDOW_STATE.NORMAL);
-    const [muted, setMuted] = useState(false);
-    const [cameraOn, setCameraOn] = useState(true);
-    const [speakerOn, setSpeakerOn] = useState(true);
+    const [callStatus, setCallStatus] = useState(status);
+    const [controls, setControls] = useState({
+        muted: false,
+        cameraOn: true,
+        speakerOn: true
+    });
     const [showEndDialog, setShowEndDialog] = useState(false);
 
     if (!isOpen) return null;
@@ -42,7 +46,7 @@ function CallWindow({
                 ? (
                     <MinimizedCall
                     user={user}
-                    status={status}
+                    status={callStatus}
                     onRestore={() => setWindowState(WINDOW_STATE.NORMAL)}
                     onEnd={() => {
                         setWindowState(WINDOW_STATE.NORMAL);
@@ -57,9 +61,7 @@ function CallWindow({
                     >
 
                         <CallHeader
-
                             user={user}
-
                             windowState={windowState}
 
                             onMinimize={() => setWindowState(WINDOW_STATE.MINIMIZED)}
@@ -73,38 +75,66 @@ function CallWindow({
                             }
 
                             onClose={() => setShowEndDialog(true)}
-
                         />
 
                         <div className="call-content">
 
-                            {
-                                type === CALL_TYPE.VOICE
+                        {
+                            callStatus === CALL_STATUS.INCOMING ? (
+                                <IncomingCall
+                                    user={user}
+                                    type={type}
+                                    onAccept={() => {
+                                        setCallStatus(CALL_STATUS.CONNECTED);
+                                    }}
+                                    onReject={() => {
+                                        setCallStatus(CALL_STATUS.ENDED);
+                                        setShowEndDialog(true);
+                                    }}
+                                />
 
-                                    ? <VoiceCall user={user} status={status} />
+                                ) : type === CALL_TYPE.VOICE ? (
 
-                                    : <VideoCall user={user} status={status} />
+                                    <VoiceCall
+                                        user={user}
+                                        status={callStatus}
+                                    />
 
+                                ) : (
+
+                                    <VideoCall
+                                        user={user}
+                                        status={callStatus}
+                                    />
+
+                                )
                             }
-
                         </div>
 
                         <CallControls
-
                             type={type}
+                            controls={controls}
+                            actions={{
+                                onMute: () =>
+                                    setControls((prev) => ({
+                                        ...prev,
+                                        muted: !prev.muted
+                                    })),
 
-                            muted={muted}
-                            speakerOn={speakerOn}
-                            cameraOn={cameraOn}
+                                onSpeaker: () =>
+                                    setControls((prev) => ({
+                                        ...prev,
+                                        speakerOn: !prev.speakerOn
+                                    })),
 
-                            onMute={() => setMuted(!muted)}
+                                onCamera: () =>
+                                    setControls((prev) => ({
+                                        ...prev,
+                                        cameraOn: !prev.cameraOn
+                                    })),
 
-                            onSpeaker={() => setSpeakerOn(!speakerOn)}
-
-                            onCamera={() => setCameraOn(!cameraOn)}
-
-                            onEnd={() => setShowEndDialog(true)}
-
+                                onEnd: () => setShowEndDialog(true)
+                            }}
                         />
 
                         <EndCallDialog

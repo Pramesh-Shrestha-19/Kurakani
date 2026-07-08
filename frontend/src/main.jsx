@@ -4,12 +4,17 @@ import './index.css'
 import App from "./App";
 
 import { BrowserRouter } from "react-router-dom";
+import { CallProvider } from "./context/CallContext";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
 
   <BrowserRouter>
 
-    <App />
+    <CallProvider>
+
+      <App />
+
+    </CallProvider>
 
   </BrowserRouter>
 

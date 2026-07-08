@@ -1,0 +1,129 @@
+.voice-call{
+
+    width:100%;
+    height:100%;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:40px;
+
+}
+
+.voice-avatar{
+
+    width:130px;
+
+    height:130px;
+
+    margin-bottom:30px;
+
+}
+
+.voice-avatar img{
+
+    width:100%;
+    height:100%;
+
+    border-radius:50%;
+
+    object-fit:cover;
+
+    border:5px solid rgba(20,184,177,.15);
+
+}
+
+.voice-avatar-placeholder{
+
+    width:100%;
+    height:100%;
+
+    border-radius:50%;
+
+    background:linear-gradient(
+        135deg,
+        #14b8b1,
+        #19c7bf
+    );
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    color:white;
+
+    font-size:52px;
+
+    font-weight:700;
+
+    box-shadow:
+        0 10px 35px rgba(20,184,177,.25);
+
+}
+
+.voice-user-name{
+
+    font-size:30px;
+
+    font-weight:600;
+
+    color:#2d3748;
+
+    margin-bottom:12px;
+
+    text-align:center;
+
+}
+
+.voice-status{
+
+    font-size:18px;
+
+    color:#6b7280;
+
+    font-weight:500;
+
+    margin-bottom:42px;
+
+}
+
+.voice-divider{
+
+    width:220px;
+
+    height:1px;
+
+    background:#e6e6e6;
+
+    margin-bottom:28px;
+
+}
+
+.voice-security{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    color:#14b8b1;
+
+    font-size:15px;
+
+    font-weight:500;
+
+}
+
+.voice-security ion-icon{
+
+    font-size:20px;
+
+}

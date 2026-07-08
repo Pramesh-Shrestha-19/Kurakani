@@ -1,0 +1,106 @@
+.video-call {
+
+    width: 100%;
+    height: 100%;
+
+}
+
+.video-stage {
+
+    position: relative;
+
+    width: 100%;
+    height: 100%;
+
+    background: #111827;
+
+    overflow: hidden;
+
+}
+
+/* ─── Remote Video ───────────────────────────── */
+
+.remote-video {
+
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.remote-placeholder {
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 14px;
+
+    color: white;
+
+}
+
+.remote-placeholder ion-icon {
+
+    font-size: 70px;
+
+    color: var(--call-primary);
+
+}
+
+.remote-placeholder h2 {
+
+    font-size: 26px;
+
+    font-weight: 600;
+
+}
+
+.remote-placeholder p {
+
+    color: #b8c0cc;
+
+}
+
+/* ─── Local Preview ─────────────────────────── */
+
+.local-video {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    width: 170px;
+    height: 220px;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 2px solid rgba(255,255,255,.2);
+    background: #2d3748;
+    box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+
+.local-placeholder {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    color: white;
+    font-weight: 600;
+}
+
+/* ─── Mobile ────────────────────────────────── */
+
+@media (max-width: 768px) {
+    .local-video {
+        width: 110px;
+        height: 150px;
+
+        right: 12px;
+        bottom: 12px;
+    }
+}

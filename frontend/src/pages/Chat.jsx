@@ -4,7 +4,11 @@ import socket from "../socket/socket";
 import "../css/Chat.css";
 import { useNavigate } from "react-router-dom";
 import CallWindow from "../components/call/CallWindow";
-import { CALL_TYPE } from "../constants/callConstants";
+import {
+    CALL_TYPE,
+    CALL_STATUS
+} from "../constants/callConstants";
+import { useCall } from "../context/CallContext";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -39,7 +43,12 @@ export default function Chat() {
   const [userResults, setUserResults] = useState([]);
   const [searching, setSearching] = useState(false);
 
-  const [showCallWindow, setShowCallWindow] = useState(false);
+  const [callType, setCallType] = useState(CALL_TYPE.VOICE);
+
+  const {
+      isOpen,
+      setIsOpen
+  } = useCall();
 
   if (!user) return null;
 
@@ -391,17 +400,23 @@ export default function Chat() {
           </button> */}
 
           <button
-            className="action-btn"
-            onClick={() => setShowCallWindow(true)}
+              className="action-btn"
+              onClick={() => {
+                  setCallType(CALL_TYPE.VOICE);
+                  setIsOpen(true)
+              }}
           >
-            <ion-icon name="call-outline"></ion-icon>
+              <ion-icon name="call-outline"></ion-icon>
           </button>
 
           <button
-            className="action-btn"
-            onClick={() => setShowCallWindow(true)}
+              className="action-btn"
+              onClick={() => {
+                  setCallType(CALL_TYPE.VIDEO);
+                  setIsOpen(true)
+              }}
           >
-            <ion-icon name="videocam-outline"></ion-icon>
+              <ion-icon name="videocam-outline"></ion-icon>
           </button>
 
           <button className="action-btn">
@@ -544,14 +559,14 @@ export default function Chat() {
       </aside>
 
       <CallWindow
-          isOpen={showCallWindow}
-          type={CALL_TYPE.VOICE}
-          status="calling"
+          isOpen={isOpen}
+          type={callType}
+          status={CALL_STATUS.CALLING}      
           user={{
               name: contact?.name || "Unknown",
               avatar: ""
           }}
-          onClose={() => setShowCallWindow(false)}
+          onClose={() => setIsOpen(false)}
       />
 
     </div>

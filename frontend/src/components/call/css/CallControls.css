@@ -1,0 +1,19 @@
+.call-controls {
+    height: 90px;
+    border-top: 1px solid var(--call-border);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+    padding: 0 24px;
+    background: #fff;
+}
+
+@media (max-width: 600px) {
+
+    .call-controls {
+        gap: 12px;
+        padding: 0 16px;
+    }
+    
+}

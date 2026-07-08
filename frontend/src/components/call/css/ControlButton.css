@@ -1,0 +1,77 @@
+.control-btn {
+
+    width: 58px;
+    height: 58px;
+
+    border: none;
+    border-radius: 50%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: white;
+
+    border: 1px solid var(--call-border);
+
+    cursor: pointer;
+
+    transition: all .25s ease;
+
+}
+
+.control-btn ion-icon {
+
+    font-size: 26px;
+
+    color: var(--call-primary);
+
+    transition: .25s;
+
+}
+
+/* Hover */
+
+.control-btn:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 8px 18px rgba(20,184,177,.18);
+
+}
+
+/* Active */
+
+.control-btn.active {
+
+    background: var(--call-primary);
+
+}
+
+.control-btn.active ion-icon {
+
+    color: white;
+
+}
+
+/* End Call */
+
+.control-btn.danger {
+
+    background: var(--call-danger);
+
+    border: none;
+
+}
+
+.control-btn.danger ion-icon {
+
+    color: white;
+
+}
+
+.control-btn.danger:hover {
+
+    background: #d83b3b;
+
+}
