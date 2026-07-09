@@ -43,11 +43,11 @@ export default function Chat() {
   const [userResults, setUserResults] = useState([]);
   const [searching, setSearching] = useState(false);
 
-  const [callType, setCallType] = useState(CALL_TYPE.VOICE);
-
   const {
-      isOpen,
-      setIsOpen
+    isOpen,
+    closeCall,
+    startVoiceCall,
+    startVideoCall
   } = useCall();
 
   if (!user) return null;
@@ -259,7 +259,7 @@ export default function Chat() {
     });
 
   const contact = activeChat ? getOtherUser(activeChat) : null;
-
+  console.log("Current contact:", contact);
   const currentUserId = (user._id || user.id)?.toString();
 
   return (
@@ -398,23 +398,17 @@ export default function Chat() {
           >
             <ion-icon name="menu-outline"></ion-icon>
           </button> */}
-
+          
           <button
               className="action-btn"
-              onClick={() => {
-                  setCallType(CALL_TYPE.VOICE);
-                  setIsOpen(true)
-              }}
+                  onClick={() => startVoiceCall(contact)}
           >
               <ion-icon name="call-outline"></ion-icon>
           </button>
 
           <button
               className="action-btn"
-              onClick={() => {
-                  setCallType(CALL_TYPE.VIDEO);
-                  setIsOpen(true)
-              }}
+                  onClick={() => startVideoCall(contact)}
           >
               <ion-icon name="videocam-outline"></ion-icon>
           </button>
@@ -444,6 +438,9 @@ export default function Chat() {
                 : m.sender?.toString();
 
             const isOwn = senderId === currentUserId;
+
+          console.log(contact);
+
 
             return (
               <div
@@ -558,16 +555,7 @@ export default function Chat() {
         </div>
       </aside>
 
-      <CallWindow
-          isOpen={isOpen}
-          type={callType}
-          status={CALL_STATUS.CALLING}      
-          user={{
-              name: contact?.name || "Unknown",
-              avatar: ""
-          }}
-          onClose={() => setIsOpen(false)}
-      />
+      <CallWindow />
 
     </div>
   );

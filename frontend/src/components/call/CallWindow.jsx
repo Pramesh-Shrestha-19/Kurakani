@@ -8,29 +8,37 @@ import CallControls from "./CallControls";
 import MinimizedCall from "./MinimizedCall";
 import EndCallDialog from "./EndCallDialog";
 import IncomingCall from "./IncomingCall";
+import { useCall } from "../../context/CallContext";
 import {
-    WINDOW_STATE,
     CALL_TYPE,
-    CALL_STATUS
+    CALL_STATUS,
+    WINDOW_STATE
 } from "../../constants/callConstants";
 
 
-function CallWindow({
-    isOpen = true,
-    type = CALL_TYPE.VOICE,
-    status = CALL_STATUS.CALLING,
-    user = {},
-    onClose = () => {}
-}) {
+function CallWindow()
+{
 
-    const [windowState, setWindowState] = useState(WINDOW_STATE.NORMAL);
-    const [callStatus, setCallStatus] = useState(status);
-    const [controls, setControls] = useState({
-        muted: false,
-        cameraOn: true,
-        speakerOn: true
-    });
+    
     const [showEndDialog, setShowEndDialog] = useState(false);
+    const {
+        isOpen,
+        callType,
+        callStatus,
+        windowState,
+        controls,
+        currentUser,
+        acceptCall,
+        rejectCall,
+        closeCall,
+        minimizeCall,
+        restoreCall,
+        toggleFullscreen,
+        toggleMute,
+        toggleSpeaker,
+        toggleCamera
+    } = useCall();
+
 
     if (!isOpen) return null;
 
@@ -45,11 +53,11 @@ function CallWindow({
                 windowState === WINDOW_STATE.MINIMIZED
                 ? (
                     <MinimizedCall
-                    user={user}
+                    user={currentUser}
                     status={callStatus}
-                    onRestore={() => setWindowState(WINDOW_STATE.NORMAL)}
+                    onRestore={() => restoreCall()}
                     onEnd={() => {
-                        setWindowState(WINDOW_STATE.NORMAL);
+                        restoreCall();
                         setShowEndDialog(true);
                     }}
                 />
@@ -61,17 +69,13 @@ function CallWindow({
                     >
 
                         <CallHeader
-                            user={user}
+                            user={currentUser}
                             windowState={windowState}
 
-                            onMinimize={() => setWindowState(WINDOW_STATE.MINIMIZED)}
+                            onMinimize={() => minimizeCall()}
 
                             onFullscreen={() =>
-                                setWindowState(
-                                    windowState === WINDOW_STATE.FULLSCREEN
-                                        ? WINDOW_STATE.NORMAL
-                                        : WINDOW_STATE.FULLSCREEN
-                                )
+                                toggleFullscreen()
                             }
 
                             onClose={() => setShowEndDialog(true)}
@@ -82,28 +86,26 @@ function CallWindow({
                         {
                             callStatus === CALL_STATUS.INCOMING ? (
                                 <IncomingCall
-                                    user={user}
-                                    type={type}
-                                    onAccept={() => {
-                                        setCallStatus(CALL_STATUS.CONNECTED);
-                                    }}
+                                    user={currentUser}
+                                    type={callType}
+                                    onAccept={acceptCall}
                                     onReject={() => {
-                                        setCallStatus(CALL_STATUS.ENDED);
+                                        rejectCall();
                                         setShowEndDialog(true);
                                     }}
                                 />
 
-                                ) : type === CALL_TYPE.VOICE ? (
+                                ) : callType === CALL_TYPE.VOICE ? (
 
                                     <VoiceCall
-                                        user={user}
+                                        user={currentUser}
                                         status={callStatus}
                                     />
 
                                 ) : (
 
                                     <VideoCall
-                                        user={user}
+                                        user={currentUser}
                                         status={callStatus}
                                     />
 
@@ -112,27 +114,12 @@ function CallWindow({
                         </div>
 
                         <CallControls
-                            type={type}
+                            type={callType}
                             controls={controls}
                             actions={{
-                                onMute: () =>
-                                    setControls((prev) => ({
-                                        ...prev,
-                                        muted: !prev.muted
-                                    })),
-
-                                onSpeaker: () =>
-                                    setControls((prev) => ({
-                                        ...prev,
-                                        speakerOn: !prev.speakerOn
-                                    })),
-
-                                onCamera: () =>
-                                    setControls((prev) => ({
-                                        ...prev,
-                                        cameraOn: !prev.cameraOn
-                                    })),
-
+                                onMute: toggleMute,
+                                onSpeaker: toggleSpeaker,
+                                onCamera: toggleCamera,
                                 onEnd: () => setShowEndDialog(true)
                             }}
                         />
@@ -142,7 +129,7 @@ function CallWindow({
                             onCancel={() => setShowEndDialog(false)}
                             onConfirm={() => {
                                 setShowEndDialog(false);
-                                onClose();
+                                closeCall();
                             }}
                         />
                     </div>

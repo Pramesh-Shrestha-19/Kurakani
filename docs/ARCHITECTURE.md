@@ -20,7 +20,7 @@ Frontend
 - Vite
 - React Router
 - Context API
-- Socket.io Client (planned)
+- Socket.io Client
 - WebRTC (planned)
 
 Backend
@@ -145,15 +145,29 @@ Examples
 
 # Call System Architecture
 
+# Call System Architecture
+
 Development order
 
-1. UI
+1. Call UI
 2. Local React State
-3. CallContext (Single Source of Truth)
-4. Socket.io Signalling
+3. CallContext Migration
+4. Socket.io Signaling
 5. WebRTC Media
-6. Backend Signalling Services
+6. Backend Signaling Services
 7. Production Polish
+
+Current Status
+
+✅ Call UI Complete
+
+✅ CallContext is the single source of truth for all call state.
+
+Next Step
+
+Socket.io signaling will synchronize call state between users.
+
+After signaling is stable, WebRTC media streams will be integrated without changing the existing UI architecture.
 
 ---
 
@@ -186,11 +200,20 @@ Close always asks for confirmation.
 
 # CallContext Philosophy
 
-CallContext is responsible for all call business logic.
+CallContext is the single source of truth for every piece of call state.
 
-Components should request actions rather than mutate call state directly.
+Responsibilities include:
 
-Preferred API:
+- Current call participant
+- Call type
+- Call status
+- Window state
+- Call controls
+- Call lifecycle
+
+Components never mutate call state directly.
+
+Instead they request actions such as:
 
 - startVoiceCall()
 - startVideoCall()
@@ -198,6 +221,7 @@ Preferred API:
 - acceptCall()
 - rejectCall()
 - endCall()
+- closeCall()
 - toggleMute()
 - toggleSpeaker()
 - toggleCamera()
@@ -205,4 +229,4 @@ Preferred API:
 - restoreCall()
 - toggleFullscreen()
 
-Components should avoid directly calling internal state setters whenever possible.
+This architecture keeps UI components stateless and prepares the project for Socket.io signaling and WebRTC without future refactoring.

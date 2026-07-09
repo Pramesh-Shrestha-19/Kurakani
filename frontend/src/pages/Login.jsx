@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/Login.css";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
   const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
+  const { login } = useAuth();
   const API = import.meta.env.VITE_API_URL;
   
 
@@ -51,8 +53,7 @@ function Login() {
       console.log("LOGIN STATUS:", res.status);
       console.log("LOGIN RESPONSE:", data);
       if (data.token) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
+        login(data.user, data.token);
         navigate("/chat");
       } else {
         setLoginError(data.message || "Invalid email or password");

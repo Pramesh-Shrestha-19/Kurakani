@@ -5,18 +5,23 @@ import App from "./App";
 
 import { BrowserRouter } from "react-router-dom";
 import { CallProvider } from "./context/CallContext";
+import { AuthProvider } from "./context/AuthContext";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
 
-  <BrowserRouter>
+<BrowserRouter>
 
-    <CallProvider>
+    <AuthProvider>
 
-      <App />
+        <CallProvider>
 
-    </CallProvider>
+            <App />
 
-  </BrowserRouter>
+        </CallProvider>
+
+    </AuthProvider>
+
+</BrowserRouter>
 
 );
 

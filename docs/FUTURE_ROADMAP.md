@@ -20,67 +20,85 @@ Chat
 
 # Phase 3
 
-
 Calling UI
 
 Status
 
-🚧 Nearly Complete
+✅ Complete
 
-Tasks
+Completed
 
 ✅ CallControls
+
 ✅ VoiceCall
+
 ✅ VideoCall
+
 ✅ IncomingCall
+
 ✅ MinimizedCall
-🚧 Final CallContext Integration
+
+✅ CallWindow
+
+✅ CallContext Integration
+
+Remaining
+
 ⬜ Responsive Polish
-⬜ Animations
+
+⬜ UI Animations
 
 ---
 
 # Phase 4
 
-Phase 4
-
 Call State
 
-🚧 In Progress
+Status
 
-Tasks
+✅ Complete
 
-CallContext Migration
+Completed
 
-Action-based Call API
+✅ Action-based CallContext
 
-Call Status Management
+✅ Single Source of Truth
 
-Window State Management
+✅ Window State Management
 
-Control State Management
+✅ Control State Management
 
-Socket.io Preparation
+✅ Call Lifecycle
 
 ---
 
 # Phase 5
 
-Socket Integration
+Socket.io Call Signaling
 
-Incoming Call
+Status
 
-Outgoing Call
+🚧 In Progress
 
-Accept
+Tasks
 
-Reject
+⬜ Outgoing Call
 
-Cancel
+⬜ Incoming Call
 
-Busy
+⬜ Accept
 
-Reconnect
+⬜ Reject
+
+⬜ End Call
+
+⬜ Busy State
+
+⬜ Cancel Call
+
+⬜ User Availability
+
+⬜ Call Synchronization
 
 ---
 

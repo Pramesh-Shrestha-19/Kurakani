@@ -1,76 +1,23 @@
 # Kurakani Development Log
 
 Last Updated:
-2026-07-08
+2026-07-09
 
 ---
 
 # Current Module
 
-Calling System UI
+Calling System
 
 ---
 
 # Completed This Session
 
-## CallControls
-
-✅ Refactored to use configuration-driven button rendering
-✅ Integrated reusable ControlButton component
-✅ CSS updated to match ControlButton styling
-
-## VoiceCall
-
-✅ Integrated with CallControls architecture
-✅ Uses call timer hook
-✅ Dynamic status text
-✅ Secure connection section completed
-
-## VideoCall
-
-✅ Replaced placeholder with production-style layout
-✅ Remote video placeholder
-✅ Local picture-in-picture preview
-✅ Responsive layout completed
-
-## IncomingCall
-
-✅ New IncomingCall component created
-✅ Incoming voice/video UI
-✅ Accept and Reject actions
-✅ Dynamic call type support
-
-## CallWindow
-
-✅ Introduced centralized controls object
-✅ Began migration toward CallContext
-✅ IncomingCall integrated into UI flow
-✅ Accept/Reject UI flow implemented
-
 ## CallContext
 
-✅ Created CallContext
-✅ CallProvider implemented
-✅ Application wrapped with CallProvider in main.jsx
-✅ Initial context state established
+✅ Refactored from setter-based API to action-based API
 
----
-
-# Current Status
-
-🚧 Call state migration is in progress.
-
-Local component state and CallContext currently coexist temporarily.
-
-The next session will complete the migration so CallContext becomes the single source of truth.
-
----
-
-# Important Architectural Decision
-
-The project will migrate from exposing state setters to an action-based CallContext API.
-
-Example actions:
+Implemented:
 
 - startVoiceCall()
 - startVideoCall()
@@ -78,21 +25,79 @@ Example actions:
 - acceptCall()
 - rejectCall()
 - endCall()
-- toggleMute()
-- toggleCamera()
-- toggleSpeaker()
+- closeCall()
 - minimizeCall()
 - restoreCall()
 - toggleFullscreen()
+- toggleMute()
+- toggleSpeaker()
+- toggleCamera()
 
-This will prepare the application for Socket.io signaling and WebRTC while improving maintainability.
+Removed raw state setters from the public context API.
+
+CallContext now acts as the single source of truth for all call state.
 
 ---
 
-# Notes
+## CallWindow
 
-Current calling UI is complete enough for local testing.
+✅ Removed duplicated local call state
 
-Networking between users has NOT started yet.
+Removed:
 
-Incoming calls are currently simulated through CALL_STATUS.INCOMING.
+- callStatus
+- windowState
+- controls
+
+CallWindow now consumes all call state directly from CallContext.
+
+Only the local End Call dialog visibility remains as component state.
+
+---
+
+## Chat Integration
+
+✅ Chat now starts calls through:
+
+- startVoiceCall(contact)
+- startVideoCall(contact)
+
+Chat no longer owns any call state.
+
+---
+
+## Authentication
+
+✅ Began integrating AuthContext into CallContext in preparation for Socket.io signaling.
+
+---
+
+## Socket.io Preparation
+
+✅ Backend signaling scaffolding prepared.
+
+Next implementation will transmit call events between users instead of simulating local calls.
+
+---
+
+# Current Status
+
+✅ Calling UI Complete
+
+✅ CallContext Migration Complete
+
+🚧 Socket.io Call Signaling In Progress
+
+WebRTC has not yet been started.
+
+---
+
+# Important Architectural Decision
+
+CallContext is now the single source of truth for every piece of call state.
+
+UI components only dispatch actions.
+
+They never directly modify call state.
+
+This allows Socket.io and WebRTC to plug into CallContext without further architectural changes.
