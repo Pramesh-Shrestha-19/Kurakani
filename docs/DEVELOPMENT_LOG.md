@@ -101,3 +101,31 @@ UI components only dispatch actions.
 They never directly modify call state.
 
 This allows Socket.io and WebRTC to plug into CallContext without further architectural changes.
+
+---
+
+## Socket.io Call Signaling (Completed)
+
+Completed:
+- Online user tracking using Map
+- Incoming call delivery
+- Accept synchronization
+- Reject synchronization
+- End call synchronization
+- Caller identity sent in payload
+- Timer synchronization
+- Duplicate user_online registrations fixed
+
+Current Status
+
+✅ Socket.io Call Signaling Complete
+
+Next Task
+
+Implement signaling polish:
+- Ringing
+- Busy
+- Timeout
+- Missed calls
+
+Then begin WebRTC.

@@ -259,7 +259,6 @@ export default function Chat() {
     });
 
   const contact = activeChat ? getOtherUser(activeChat) : null;
-  console.log("Current contact:", contact);
   const currentUserId = (user._id || user.id)?.toString();
 
   return (
@@ -438,9 +437,6 @@ export default function Chat() {
                 : m.sender?.toString();
 
             const isOwn = senderId === currentUserId;
-
-          console.log(contact);
-
 
             return (
               <div

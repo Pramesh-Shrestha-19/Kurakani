@@ -1,6 +1,7 @@
 import {
     createContext,
     useContext,
+    useEffect,
     useState
 } from "react";
 
@@ -37,24 +38,80 @@ export function CallProvider({ children }) {
 
     const [currentUser, setCurrentUser] = useState(null);
 
+    // ─── Socket Events ──────────────────────────────
+
+    useEffect(() => {
+
+        socket.on("call:incoming", (payload) => {
+
+            console.log("Incoming Call:", payload);
+            receiveCall(payload);
+
+        });
+
+        socket.on("call:rejected", (payload) => {
+
+            console.log("Call Rejected:", payload);
+            closeCall();
+
+        });
+
+        socket.on("call:accepted", () => {
+
+            console.log("Call Accepted");
+            setCallStatus(CALL_STATUS.CONNECTED);
+
+        });
+
+        socket.on("call:ended", () => {
+            console.log("Call Ended");
+            closeCall();
+        });
+
+        return () => {
+
+            socket.off("call:incoming");
+            socket.off("call:accepted");
+            socket.off("call:rejected");
+            socket.off("call:ended");
+
+        };
+
+    }, []);
+
     // ─── Actions ────────────────────────────────────
 
     const startVoiceCall = (contact) => {
 
+        console.log("startVoiceCall()", contact);
+
+        if (!contact) {
+            console.error("No contact selected.");
+            return;
+        }
+
         setCurrentUser(contact);
-
         setCallType(CALL_TYPE.VOICE);
-
         setCallStatus(CALL_STATUS.CALLING);
-
         setWindowState(WINDOW_STATE.NORMAL);
-
         setIsOpen(true);
 
+        console.log("Socket connected:", socket.connected);
+
         socket.emit("call:start", {
-            to: contact._id,
-            from: user,
-            type: CALL_TYPE.VOICE
+            callId: crypto.randomUUID(),
+            callerId: user._id,
+            callerName: user.name,
+            callerEmail: user.email,
+            receiverId: contact._id,
+            callType: CALL_TYPE.VOICE
+        });
+
+        console.log("Sending call:start", {
+            callId: crypto.randomUUID(),
+            callerId: user._id,
+            receiverId: contact._id,
+            callType: CALL_TYPE.VOICE
         });
 
     };
@@ -62,47 +119,74 @@ export function CallProvider({ children }) {
     const startVideoCall = (contact) => {
 
         setCurrentUser(contact);
-
         setCallType(CALL_TYPE.VIDEO);
-
         setCallStatus(CALL_STATUS.CALLING);
-
         setWindowState(WINDOW_STATE.NORMAL);
-
         setIsOpen(true);
 
         socket.emit("call:start", {
-            to: contact._id,
-            from: user,
-            type: CALL_TYPE.VIDEO
+            callId: crypto.randomUUID(),
+            callerId: user._id,
+            callerName: user.name,
+            callerEmail: user.email,
+            receiverId: contact._id,
+            callType: CALL_TYPE.VIDEO
         });
 
     };
 
-    const receiveCall = (user, type) => {
+    const receiveCall = (payload) => {
 
-        setCurrentUser(user);
+        setCurrentUser({
+            _id: payload.callerId,
+            name: payload.callerName,
+            email: payload.callerEmail
+        });
 
-        setCallType(type);
-
+        setCallType(payload.callType);
         setCallStatus(CALL_STATUS.INCOMING);
-
         setWindowState(WINDOW_STATE.NORMAL);
-
         setIsOpen(true);
 
     };
 
     const acceptCall = () => {
+
+        socket.emit("call:accept", {
+            callerId: currentUser._id,
+            receiverId: user._id,
+            callType
+        });
+
         setCallStatus(CALL_STATUS.CONNECTED);
+
     };
 
     const rejectCall = () => {
+
+        socket.emit("call:reject", {
+            callId: crypto.randomUUID(),
+            callerId: user._id,
+            receiverId: currentUser._id,
+            callType
+        });
+
         setCallStatus(CALL_STATUS.ENDED);
+
+        closeCall();
+
     };
 
     const endCall = () => {
+
+        socket.emit("call:end", {
+            callerId: user._id,
+            receiverId: currentUser._id,
+            callType
+        });
+
         setCallStatus(CALL_STATUS.ENDED);
+        closeCall();
     };
 
     const closeCall = () => {

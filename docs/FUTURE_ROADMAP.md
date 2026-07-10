@@ -78,7 +78,7 @@ Socket.io Call Signaling
 
 Status
 
-🚧 In Progress
+✅ Complete
 
 Tasks
 
@@ -173,3 +173,19 @@ Testing
 Error Handling
 
 Deployment
+
+---
+
+## Phase 5.5 - Signaling Polish
+
+- Ringing state
+- Busy state
+- Missed call
+- Call timeout
+- Offline user handling
+
+---
+
+## Phase 6
+
+Begin WebRTC after Phase 5.5 is complete.

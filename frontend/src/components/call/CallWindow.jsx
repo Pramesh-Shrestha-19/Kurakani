@@ -31,6 +31,7 @@ function CallWindow()
         acceptCall,
         rejectCall,
         closeCall,
+        endCall,
         minimizeCall,
         restoreCall,
         toggleFullscreen,
@@ -129,7 +130,7 @@ function CallWindow()
                             onCancel={() => setShowEndDialog(false)}
                             onConfirm={() => {
                                 setShowEndDialog(false);
-                                closeCall();
+                                endCall();
                             }}
                         />
                     </div>

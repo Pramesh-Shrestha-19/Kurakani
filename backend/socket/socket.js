@@ -1,4 +1,4 @@
-let onlineUsers = {};
+const onlineUsers = new Map();
 
 export const initializeSocket = (io) => {
 
@@ -10,11 +10,18 @@ export const initializeSocket = (io) => {
 
     socket.on("user_online", (userId) => {
 
-      onlineUsers[userId] = socket.id;
+        const previousSocket = onlineUsers.get(userId);
 
-      console.log("Online Users:", onlineUsers);
+        // Ignore duplicate registrations from the same socket
+        if (previousSocket === socket.id) {
+            return;
+        }
 
-      io.emit("online_users", Object.keys(onlineUsers));
+        onlineUsers.set(userId, socket.id);
+
+        console.log("🟢 User Online:", userId);
+
+        io.emit("online_users", Array.from(onlineUsers.keys()));
 
     });
 
@@ -53,36 +60,43 @@ export const initializeSocket = (io) => {
 
     // ─── Call Signaling ────────────────────────────
 
-    socket.on("call:start", ({ to, from, type }) => {
-
-      const receiverSocket = onlineUsers[to];
-
+    socket.on("call:start", (payload) => {
+      console.log("call:start received", payload);
+      const receiverSocket = onlineUsers.get(payload.receiverId);
       if (!receiverSocket) return;
+      io.to(receiverSocket).emit("call:incoming", payload);
+    });
 
-      io.to(receiverSocket).emit("call:incoming", {
-        from,
-        type,
-      });
+    socket.on("call:accept", (payload) => {
+        const callerSocket = onlineUsers.get(payload.callerId);
+        if (!callerSocket) return;
+        io.to(callerSocket).emit("call:accepted", payload);
+    });
 
+    socket.on("call:reject", (payload) => {
+      const receiverSocket = onlineUsers.get(payload.receiverId);
+      if (!receiverSocket) return;
+      io.to(receiverSocket).emit("call:rejected", payload);
+    });
+
+    socket.on("call:end", (payload) => {
+      const receiverSocket = onlineUsers.get(payload.receiverId);
+      if (!receiverSocket) return;
+      io.to(receiverSocket).emit("call:ended", payload);
     });
 
     // ─── Disconnect ────────────────────────────────
 
     socket.on("disconnect", () => {
 
-      for (const userId in onlineUsers) {
-
-        if (onlineUsers[userId] === socket.id) {
-
-          delete onlineUsers[userId];
-
+      for (const [userId, socketId] of onlineUsers.entries()) {
+        if (socketId === socket.id) {
+          onlineUsers.delete(userId);
           break;
-
         }
-
       }
 
-      io.emit("online_users", Object.keys(onlineUsers));
+      io.emit("online_users", Array.from(onlineUsers.keys()));
 
       console.log("🔴 Disconnected:", socket.id);
 
