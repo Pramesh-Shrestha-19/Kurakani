@@ -42,25 +42,53 @@ export function CallProvider({ children }) {
 
     useEffect(() => {
 
-        socket.on("call:incoming", (payload) => {
+        if (!user) return;
 
+        socket.on("call:incoming", (payload) => {
             console.log("Incoming Call:", payload);
             receiveCall(payload);
+        });
 
+        socket.on("call:ringing", () => {
+            console.log("Call Ringing");
+            setCallStatus(CALL_STATUS.RINGING);
         });
 
         socket.on("call:rejected", (payload) => {
-
             console.log("Call Rejected:", payload);
             closeCall();
-
         });
 
         socket.on("call:accepted", () => {
-
             console.log("Call Accepted");
             setCallStatus(CALL_STATUS.CONNECTED);
+        });
 
+        socket.on("call:busy", () => {
+            console.log("User is busy");
+            setCallStatus(CALL_STATUS.BUSY);
+
+            setTimeout(() => {
+                closeCall();
+            }, 4000);
+        });
+
+        socket.on("call:timeout", () => {
+            console.log("Call Timed Out");
+            setCallStatus(CALL_STATUS.TIMEOUT);
+
+            setTimeout(() => {
+                closeCall();
+            }, 4000);
+        });
+
+        socket.on("call:offline", () => {
+            console.log("User is offline");
+            setCallStatus(CALL_STATUS.OFFLINE);
+
+            setTimeout(() => {
+                closeCall();
+            }, 5000);
         });
 
         socket.on("call:ended", () => {
@@ -69,15 +97,17 @@ export function CallProvider({ children }) {
         });
 
         return () => {
-
             socket.off("call:incoming");
+            socket.off("call:ringing");
             socket.off("call:accepted");
             socket.off("call:rejected");
+            socket.off("call:busy");
+            socket.off("call:timeout");
+            socket.off("call:offline");
             socket.off("call:ended");
-
         };
 
-    }, []);
+    }, [user]);
 
     // ─── Actions ────────────────────────────────────
 
@@ -98,8 +128,10 @@ export function CallProvider({ children }) {
 
         console.log("Socket connected:", socket.connected);
 
+        const callId = crypto.randomUUID();
+
         socket.emit("call:start", {
-            callId: crypto.randomUUID(),
+            callId,
             callerId: user._id,
             callerName: user.name,
             callerEmail: user.email,
@@ -108,7 +140,7 @@ export function CallProvider({ children }) {
         });
 
         console.log("Sending call:start", {
-            callId: crypto.randomUUID(),
+            callId,
             callerId: user._id,
             receiverId: contact._id,
             callType: CALL_TYPE.VOICE
@@ -124,8 +156,10 @@ export function CallProvider({ children }) {
         setWindowState(WINDOW_STATE.NORMAL);
         setIsOpen(true);
 
+        const callId = crypto.randomUUID();
+
         socket.emit("call:start", {
-            callId: crypto.randomUUID(),
+            callId,
             callerId: user._id,
             callerName: user.name,
             callerEmail: user.email,
@@ -148,6 +182,10 @@ export function CallProvider({ children }) {
         setWindowState(WINDOW_STATE.NORMAL);
         setIsOpen(true);
 
+        socket.emit("call:ringing", {
+            callerId: payload.callerId,
+            receiverId: user._id
+        });
     };
 
     const acceptCall = () => {

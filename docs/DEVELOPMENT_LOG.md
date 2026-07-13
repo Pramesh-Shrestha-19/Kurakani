@@ -1,7 +1,7 @@
 # Kurakani Development Log
 
 Last Updated:
-2026-07-09
+2026-07-13
 
 ---
 
@@ -104,28 +104,40 @@ This allows Socket.io and WebRTC to plug into CallContext without further archit
 
 ---
 
-## Socket.io Call Signaling (Completed)
+## Socket.io Call Signaling
 
 Completed:
 - Online user tracking using Map
-- Incoming call delivery
-- Accept synchronization
-- Reject synchronization
-- End call synchronization
-- Caller identity sent in payload
-- Timer synchronization
-- Duplicate user_online registrations fixed
+- Incoming/outgoing call synchronization
+- Ringing
+- Accept / Reject / End synchronization
+- Busy state
+- Call timeout
+- Offline user handling
+- Duplicate user_online prevention
+
+Backend state:
+- onlineUsers
+- pendingCalls
+- activeCalls
+- callTimeouts
 
 Current Status
 
+✅ Calling UI Complete
+✅ CallContext Migration Complete
 ✅ Socket.io Call Signaling Complete
+🚧 Ready to Begin WebRTC
+
+Important Architectural Decision
+
+CallContext remains the single source of truth.
+
+Socket.io is now used purely for signaling and will later transport WebRTC offers, answers and ICE candidates.
 
 Next Task
 
-Implement signaling polish:
-- Ringing
-- Busy
-- Timeout
-- Missed calls
-
-Then begin WebRTC.
+Create:
+- frontend/src/webrtc/rtcConfig.js
+- frontend/src/webrtc/media.js
+- frontend/src/webrtc/peerConnection.js

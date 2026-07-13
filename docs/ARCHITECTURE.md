@@ -476,3 +476,18 @@ Instead they request actions such as:
 - toggleFullscreen()
 
 This architecture keeps UI components stateless and prepares the project for Socket.io signaling and WebRTC without future refactoring.
+
+---
+
+# Socket.io Signaling Architecture
+
+Backend maintains:
+
+- onlineUsers
+- pendingCalls
+- activeCalls
+- callTimeouts
+
+CallContext remains the single source of truth.
+
+Socket.io is responsible only for signaling. WebRTC media will integrate into this architecture without requiring UI refactoring.

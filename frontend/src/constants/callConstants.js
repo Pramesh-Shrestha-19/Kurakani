@@ -15,6 +15,9 @@ export const CALL_STATUS = {
     RINGING: "ringing",
     CONNECTING: "connecting",
     CONNECTED: "connected",
+    BUSY: "busy", 
+    TIMEOUT: "timeout",
+    OFFLINE: "offline",
     ENDED: "ended",
     MISSED: "missed",
 };
