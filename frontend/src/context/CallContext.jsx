@@ -2,6 +2,7 @@ import {
     createContext,
     useContext,
     useEffect,
+    useRef,
     useState
 } from "react";
 
@@ -10,6 +11,26 @@ import {
     CALL_TYPE,
     WINDOW_STATE
 } from "../constants/callConstants";
+
+import {
+    createPeerConnection,
+    addLocalStream,
+    createOffer,
+    createAnswer,
+    setLocalDescription,
+    setRemoteDescription,
+    addIceCandidate,
+    closePeerConnection,
+    onIceCandidate,
+    onTrack,
+    onConnectionStateChange,
+    onIceConnectionStateChange,
+} from "../webrtc/peerConnection";
+
+import {
+    getLocalStream,
+    stopStream,
+} from "../webrtc/media";
 
 import { useAuth } from "./AuthContext";
 import socket from "../socket/socket";
@@ -36,7 +57,153 @@ export function CallProvider({ children }) {
         cameraOn: true
     });
 
+    const remoteMediaRef = useRef(null);
+
     const [currentUser, setCurrentUser] = useState(null);
+
+    // ─── WebRTC State ─────────────────────────────────
+
+    const [peerConnection, setPeerConnection] = useState(null);
+    const [localStream, setLocalStream] = useState(null);
+    const [remoteStream, setRemoteStream] = useState(null);
+
+    const peerConnectionRef = useRef(null);
+    const localStreamRef = useRef(null);
+    const currentUserRef = useRef(null);
+    const callStartTimeRef = useRef(null);
+    const callTypeRef = useRef(CALL_TYPE.VOICE);
+
+    // ─── WebRTC Helpers ───────────────────────────────
+
+
+    const initializeWebRTC = async () => {
+        let stream = null;
+        let peer = null;
+
+        try {
+            stream = await getLocalStream(callTypeRef.current);
+            peer = createPeerConnection();
+
+            addLocalStream(peer, stream);
+
+            onIceCandidate(peer, (candidate) => {
+
+                const targetUser = currentUserRef.current;
+
+                if (!targetUser) return;
+
+                socket.emit("webrtc:ice-candidate", {
+                    receiverId: targetUser._id,
+                    candidate,
+                });
+
+            });
+
+            onTrack(peer, (remoteStream) => {
+                console.log("REMOTE STREAM:", remoteStream);
+                console.log("Tracks:", remoteStream.getTracks());
+
+                setRemoteStream(remoteStream);
+            });
+
+            onConnectionStateChange(peer, (state) => {
+                console.log("Connection:", state);
+
+                if (state === "connected" && !callStartTimeRef.current) {
+                    const startTime = Date.now();
+                    callStartTimeRef.current = startTime;
+
+                    socket.emit("call:timer-sync", {
+                        receiverId: currentUserRef.current?._id,
+                        startTime,
+                    });
+                }
+            });
+
+            onIceConnectionStateChange(peer, (state) => {
+                console.log("ICE:", state);
+            });
+
+            localStreamRef.current = stream;
+            setLocalStream(stream);
+
+            peerConnectionRef.current = peer;
+            setPeerConnection(peer);
+
+            return {
+                peer,
+                stream,
+            };
+
+        } catch (error) {
+            console.error("Failed to initialize WebRTC:", error);
+
+            if (peer) {
+                closePeerConnection(peer);
+            }
+
+            if (stream) {
+                stopStream(stream);
+            }
+
+            peerConnectionRef.current = null;
+            localStreamRef.current = null;
+
+            throw error;
+        }
+    };
+
+    const cleanupWebRTC = () => {
+
+        if(localStreamRef.current){
+
+            stopStream(localStreamRef.current);
+
+            localStreamRef.current=null;
+            setLocalStream(null);
+        }
+
+
+        if(peerConnectionRef.current){
+
+            closePeerConnection(peerConnectionRef.current);
+
+            peerConnectionRef.current=null;
+            setPeerConnection(null);
+        }
+
+
+        remoteMediaRef.current = null;
+        setRemoteStream(null);
+    };
+
+    const sendOffer = async (peer) => {
+
+        const offer = await createOffer(peer);
+
+        await setLocalDescription(peer, offer);
+
+        socket.emit("webrtc:offer", {
+            receiverId: currentUserRef.current._id,
+            offer,
+        });
+
+    };
+
+    const sendAnswer = async (peer, offer) => {
+
+        await setRemoteDescription(peer, offer);
+
+        const answer = await createAnswer(peer);
+
+        await setLocalDescription(peer, answer);
+
+        socket.emit("webrtc:answer", {
+            receiverId: currentUserRef.current._id,
+            answer,
+        });
+
+    };
 
     // ─── Socket Events ──────────────────────────────
 
@@ -59,9 +226,24 @@ export function CallProvider({ children }) {
             closeCall();
         });
 
-        socket.on("call:accepted", () => {
+        socket.on("call:accepted", async () => {
+
             console.log("Call Accepted");
-            setCallStatus(CALL_STATUS.CONNECTED);
+
+            try {
+
+                const { peer } = await initializeWebRTC();
+                await sendOffer(peer);
+
+                setCallStatus(CALL_STATUS.CONNECTED);
+
+            } catch (error) {
+                console.error("Failed to initialize WebRTC:", error);
+
+                closeCall();
+
+            }
+
         });
 
         socket.on("call:busy", () => {
@@ -96,6 +278,58 @@ export function CallProvider({ children }) {
             closeCall();
         });
 
+        socket.on("call:timer-sync", ({ startTime }) => {
+            callStartTimeRef.current = startTime;
+        });
+
+        socket.on("webrtc:offer", async ({ offer }) => {
+
+            try {
+
+                let peer = peerConnectionRef.current;
+
+                if (!peer) {
+                    const result = await initializeWebRTC();
+                    peer = result.peer;
+                }
+
+                await sendAnswer(peer, offer);
+
+            } catch (error) {
+                console.error("Failed to process WebRTC offer:", error);
+
+                closeCall();
+            }
+
+        });
+
+        socket.on("webrtc:answer", async ({ answer }) => {
+            const peer = peerConnectionRef.current;
+
+            if (!peer) {
+                console.error("Peer connection not initialized.");
+                return;
+            }
+
+            await setRemoteDescription(peer, answer);
+        });
+
+        socket.on("webrtc:ice-candidate", async ({ candidate }) => {
+            try {
+                const peer = peerConnectionRef.current;
+
+                if (!peer) {
+                    console.error("Peer connection not initialized.");
+                    return;
+                }
+
+                await addIceCandidate(peer, candidate);
+
+            } catch (error) {
+                console.error("Failed to add ICE candidate:", error);
+            }
+        });
+
         return () => {
             socket.off("call:incoming");
             socket.off("call:ringing");
@@ -105,6 +339,9 @@ export function CallProvider({ children }) {
             socket.off("call:timeout");
             socket.off("call:offline");
             socket.off("call:ended");
+            socket.off("webrtc:offer");
+            socket.off("webrtc:answer");
+            socket.off("webrtc:ice-candidate");
         };
 
     }, [user]);
@@ -121,7 +358,9 @@ export function CallProvider({ children }) {
         }
 
         setCurrentUser(contact);
+        currentUserRef.current = contact;
         setCallType(CALL_TYPE.VOICE);
+        callTypeRef.current = CALL_TYPE.VOICE;
         setCallStatus(CALL_STATUS.CALLING);
         setWindowState(WINDOW_STATE.NORMAL);
         setIsOpen(true);
@@ -151,7 +390,9 @@ export function CallProvider({ children }) {
     const startVideoCall = (contact) => {
 
         setCurrentUser(contact);
+        currentUserRef.current = contact;
         setCallType(CALL_TYPE.VIDEO);
+        callTypeRef.current = CALL_TYPE.VIDEO;
         setCallStatus(CALL_STATUS.CALLING);
         setWindowState(WINDOW_STATE.NORMAL);
         setIsOpen(true);
@@ -171,13 +412,18 @@ export function CallProvider({ children }) {
 
     const receiveCall = (payload) => {
 
-        setCurrentUser({
+        const caller = {
             _id: payload.callerId,
             name: payload.callerName,
             email: payload.callerEmail
-        });
+        };
+
+
+        setCurrentUser(caller);
+        currentUserRef.current = caller;
 
         setCallType(payload.callType);
+        callTypeRef.current = payload.callType;
         setCallStatus(CALL_STATUS.INCOMING);
         setWindowState(WINDOW_STATE.NORMAL);
         setIsOpen(true);
@@ -188,15 +434,25 @@ export function CallProvider({ children }) {
         });
     };
 
-    const acceptCall = () => {
+    const acceptCall = async () => {
 
-        socket.emit("call:accept", {
-            callerId: currentUser._id,
-            receiverId: user._id,
-            callType
-        });
+        try {
 
-        setCallStatus(CALL_STATUS.CONNECTED);
+            await initializeWebRTC();
+
+            socket.emit("call:accept", {
+                callerId: currentUserRef.current._id,
+                receiverId: user._id,
+                callType
+            });
+
+            setCallStatus(CALL_STATUS.CONNECTED);
+
+        } catch (error) {
+            console.error("Failed to accept call:", error);
+
+            closeCall();
+        }
 
     };
 
@@ -205,7 +461,7 @@ export function CallProvider({ children }) {
         socket.emit("call:reject", {
             callId: crypto.randomUUID(),
             callerId: user._id,
-            receiverId: currentUser._id,
+            receiverId: currentUserRef.current._id,
             callType
         });
 
@@ -219,7 +475,7 @@ export function CallProvider({ children }) {
 
         socket.emit("call:end", {
             callerId: user._id,
-            receiverId: currentUser._id,
+            receiverId: currentUserRef.current._id,
             callType
         });
 
@@ -229,13 +485,18 @@ export function CallProvider({ children }) {
 
     const closeCall = () => {
 
+        cleanupWebRTC();
+
         setIsOpen(false);
         setCurrentUser(null);
 
         setCallStatus(CALL_STATUS.CALLING);
         setWindowState(WINDOW_STATE.NORMAL);
 
+        callStartTimeRef.current = null;
+
         setCallType(CALL_TYPE.VOICE);
+        callTypeRef.current = CALL_TYPE.VOICE;
 
         setControls({
             muted: false,
@@ -265,28 +526,66 @@ export function CallProvider({ children }) {
 
     const toggleMute = () => {
 
-        setControls((prev) => ({
-            ...prev,
-            muted: !prev.muted
-        }));
+        setControls((prev)=>{
+
+            const newState = !prev.muted;
+
+            localStreamRef.current
+            ?.getAudioTracks()
+            .forEach(track=>{
+                track.enabled = !newState;
+            });
+
+
+            return {
+                ...prev,
+                muted:newState
+            };
+
+        });
 
     };
 
     const toggleSpeaker = () => {
 
-        setControls((prev) => ({
-            ...prev,
-            speakerOn: !prev.speakerOn
-        }));
+        setControls((prev)=>{
+
+            const speakerOn = !prev.speakerOn;
+
+            if(remoteMediaRef.current){
+                remoteMediaRef.current.muted =
+                    !speakerOn;
+            }
+
+            return {
+                ...prev,
+                speakerOn
+            };
+
+        });
 
     };
 
     const toggleCamera = () => {
 
-        setControls((prev) => ({
-            ...prev,
-            cameraOn: !prev.cameraOn
-        }));
+        setControls((prev)=>{
+
+            const newState=!prev.cameraOn;
+
+
+            localStreamRef.current
+            ?.getVideoTracks()
+            .forEach(track=>{
+                track.enabled=newState;
+            });
+
+
+            return {
+                ...prev,
+                cameraOn:newState
+            };
+
+        });
 
     };
 
@@ -294,21 +593,23 @@ export function CallProvider({ children }) {
 
     const value = {
 
-        // State
+         // Call UI State
         isOpen,
         callType,
         callStatus,
         windowState,
         controls,
         currentUser,
+        callStartTimeRef,
 
-        // Setters
-        // setIsOpen,
-        // setCallType,
-        // setCurrentUser,
-        // setCallStatus,
-        // setWindowState,
-        // setControls,
+
+        // WebRTC State
+        peerConnection,
+        localStream,
+        remoteStream,
+
+        // Media Refs
+        remoteMediaRef,
 
         // Actions
         startVoiceCall,

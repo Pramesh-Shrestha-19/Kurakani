@@ -28,6 +28,8 @@ function CallWindow()
         windowState,
         controls,
         currentUser,
+        localStream,
+        remoteStream,
         acceptCall,
         rejectCall,
         closeCall,
@@ -108,6 +110,8 @@ function CallWindow()
                                     <VideoCall
                                         user={currentUser}
                                         status={callStatus}
+                                        localStream={localStream}
+                                        remoteStream={remoteStream}
                                     />
 
                                 )

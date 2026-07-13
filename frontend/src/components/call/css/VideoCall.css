@@ -104,3 +104,33 @@
         bottom: 12px;
     }
 }
+
+.remote-video-element {
+
+    width:100%;
+    height:100%;
+
+    object-fit:cover;
+
+}
+
+
+
+.local-video-element {
+
+    width:100%;
+    height:100%;
+
+    object-fit:cover;
+
+}
+
+.remote-video-element,
+.local-video-element {
+
+    width:100%;
+    height:100%;
+
+    object-fit:cover;
+
+}

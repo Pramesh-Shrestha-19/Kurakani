@@ -21,7 +21,7 @@ Frontend
 - React Router
 - Context API
 - Socket.io Client
-- WebRTC (planned)
+- WebRTC
 
 Backend
 - Node.js
@@ -222,7 +222,7 @@ Frontend
 - React Router
 - Context API
 - Socket.io Client
-- WebRTC (planned)
+- WebRTC
 
 Backend
 - Node.js
@@ -491,3 +491,61 @@ Backend maintains:
 CallContext remains the single source of truth.
 
 Socket.io is responsible only for signaling. WebRTC media will integrate into this architecture without requiring UI refactoring.
+
+
+---
+
+# WebRTC Architecture
+
+WebRTC is now fully integrated into the calling system.
+
+Architecture flow:
+
+CallContext
+      ↓
+Socket.io Signaling
+      ↓
+RTCPeerConnection
+      ↓
+Media Streams
+      ↓
+Voice / Video UI
+
+Responsibilities
+
+CallContext
+- Owns call lifecycle
+- Owns PeerConnection state
+- Owns local/remote streams
+- Coordinates signaling and media
+
+webrtc/media.js
+- Acquire microphone/camera
+- Stop media streams
+
+webrtc/peerConnection.js
+- Peer connection creation
+- Offer/Answer exchange
+- ICE candidate handling
+- Track events
+- Connection state events
+
+Completed Features
+
+- Voice calling
+- Video calling
+- Offer/Answer negotiation
+- ICE candidate exchange
+- Local video preview
+- Remote media rendering
+- Microphone toggle
+- Camera toggle
+- Speaker control
+- Automatic WebRTC cleanup on call end
+
+Next Focus
+
+- TURN server integration
+- Call reconnection
+- Screen sharing
+- Device selection

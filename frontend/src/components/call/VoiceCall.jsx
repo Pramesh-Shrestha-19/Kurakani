@@ -1,23 +1,43 @@
 import "./css/VoiceCall.css";
 
+import { useEffect } from "react";
 import { getCallStatusText } from "../../utils/callUtils";
 import useCallTimer from "../../hooks/useCallTimer";
+import { useCall } from "../../context/CallContext";
 
 function VoiceCall({
     user,
     status
 }) {
 
-    const duration = useCallTimer(status);
+    const { remoteMediaRef, remoteStream, callStartTimeRef } = useCall();
+
+    const duration = useCallTimer(status, callStartTimeRef);
 
     const statusText = getCallStatusText(
         status,
         duration
     );
 
+    useEffect(() => {
+        if (remoteMediaRef.current) {
+            remoteMediaRef.current.srcObject = remoteStream || null;
+        }
+    }, [remoteStream]);
+
     return (
 
         <div className="voice-call">
+
+            <audio
+                ref={(element) => {
+                    if (element) {
+                        remoteMediaRef.current = element;
+                    }
+                }}
+                autoPlay
+                playsInline
+            />
 
             <div className="voice-avatar">
 

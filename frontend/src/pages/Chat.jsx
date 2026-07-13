@@ -56,12 +56,14 @@ export default function Chat() {
     if (!user?._id) return;
 
     const handleConnect = () => {
+      console.log("Registered user:", user._id);
       socket.emit("user_online", user._id);
     };
 
     socket.on("connect", handleConnect);
 
     if (socket.connected) {
+      console.log("Registered user:", user._id);
       socket.emit("user_online", user._id);
     } else {
       socket.connect();

@@ -1,143 +1,227 @@
 # Kurakani Development Log
 
 Last Updated:
-2026-07-13
+2026-07-14
 
 ---
 
 # Current Module
 
-Calling System
+WebRTC Calling System
 
 ---
 
 # Completed This Session
 
+## WebRTC Foundation
+
+✅ Implemented a dedicated WebRTC layer.
+
+Created:
+
+- frontend/src/webrtc/rtcConfig.js
+- frontend/src/webrtc/media.js
+- frontend/src/webrtc/peerConnection.js
+
+Responsibilities were separated into configuration, media management and peer connection utilities.
+
+---
+
 ## CallContext
 
-✅ Refactored from setter-based API to action-based API
+Expanded CallContext into the central controller for the complete calling system.
 
-Implemented:
+Now manages:
 
-- startVoiceCall()
-- startVideoCall()
-- receiveCall()
-- acceptCall()
-- rejectCall()
-- endCall()
-- closeCall()
-- minimizeCall()
-- restoreCall()
-- toggleFullscreen()
-- toggleMute()
-- toggleSpeaker()
-- toggleCamera()
+- Call lifecycle
+- WebRTC initialization
+- Peer connection
+- Local media stream
+- Remote media stream
+- Offer / Answer exchange
+- ICE candidate exchange
+- Media cleanup
+- Call controls
 
-Removed raw state setters from the public context API.
-
-CallContext now acts as the single source of truth for all call state.
+CallContext remains the single source of truth for all call state.
 
 ---
 
-## CallWindow
+## Socket.io Signaling
 
-✅ Removed duplicated local call state
+Completed signaling flow.
 
-Removed:
+Implemented events:
 
-- callStatus
-- windowState
-- controls
+- call:start
+- call:incoming
+- call:ringing
+- call:accept
+- call:accepted
+- call:reject
+- call:rejected
+- call:end
+- call:ended
+- call:busy
+- call:timeout
+- call:offline
 
-CallWindow now consumes all call state directly from CallContext.
+Backend now maintains:
 
-Only the local End Call dialog visibility remains as component state.
-
----
-
-## Chat Integration
-
-✅ Chat now starts calls through:
-
-- startVoiceCall(contact)
-- startVideoCall(contact)
-
-Chat no longer owns any call state.
-
----
-
-## Authentication
-
-✅ Began integrating AuthContext into CallContext in preparation for Socket.io signaling.
-
----
-
-## Socket.io Preparation
-
-✅ Backend signaling scaffolding prepared.
-
-Next implementation will transmit call events between users instead of simulating local calls.
-
----
-
-# Current Status
-
-✅ Calling UI Complete
-
-✅ CallContext Migration Complete
-
-🚧 Socket.io Call Signaling In Progress
-
-WebRTC has not yet been started.
-
----
-
-# Important Architectural Decision
-
-CallContext is now the single source of truth for every piece of call state.
-
-UI components only dispatch actions.
-
-They never directly modify call state.
-
-This allows Socket.io and WebRTC to plug into CallContext without further architectural changes.
-
----
-
-## Socket.io Call Signaling
-
-Completed:
-- Online user tracking using Map
-- Incoming/outgoing call synchronization
-- Ringing
-- Accept / Reject / End synchronization
-- Busy state
-- Call timeout
-- Offline user handling
-- Duplicate user_online prevention
-
-Backend state:
 - onlineUsers
 - pendingCalls
 - activeCalls
 - callTimeouts
 
-Current Status
+---
+
+## WebRTC Negotiation
+
+Completed:
+
+✅ Peer Connection creation
+
+✅ Local Description
+
+✅ Remote Description
+
+✅ SDP Offer generation
+
+✅ SDP Answer generation
+
+✅ ICE Candidate exchange
+
+✅ Remote stream handling
+
+---
+
+## Voice Calling
+
+Completed:
+
+✅ Microphone access
+
+✅ Audio streaming
+
+✅ Incoming voice calls
+
+✅ Outgoing voice calls
+
+✅ Proper cleanup after call ends
+
+---
+
+## Video Calling
+
+Completed:
+
+✅ Camera access
+
+✅ Local preview
+
+✅ Remote video rendering
+
+✅ Voice + video transmission
+
+---
+
+## Media Controls
+
+Implemented real media controls.
+
+Completed:
+
+- Toggle microphone
+- Toggle camera
+- Toggle speaker
+- Automatic media track enable/disable
+
+Controls now affect actual WebRTC tracks instead of only changing UI state.
+
+---
+
+## UI Integration
+
+Completed integration between:
+
+- Chat
+- CallWindow
+- VoiceCall
+- VideoCall
+- CallControls
+- CallContext
+
+All components now consume CallContext without duplicating state.
+
+---
+
+## Bug Fixes
+
+Resolved multiple issues during WebRTC integration including:
+
+- Missing Provider causing CallWindow not to render
+- Current user synchronization
+- PeerConnection initialization timing
+- Remote stream rendering
+- ICE candidate ordering
+- Media cleanup
+- Duplicate socket registration
+- Video rendering issues
+- Audio routing bugs
+- Call lifecycle synchronization
+
+---
+
+# Current Status
+
+✅ Authentication Complete
+
+✅ Chat System Complete
 
 ✅ Calling UI Complete
+
 ✅ CallContext Migration Complete
-✅ Socket.io Call Signaling Complete
-🚧 Ready to Begin WebRTC
 
-Important Architectural Decision
+✅ Socket.io Signaling Complete
 
-CallContext remains the single source of truth.
+✅ WebRTC Voice Calling Complete
 
-Socket.io is now used purely for signaling and will later transport WebRTC offers, answers and ICE candidates.
+✅ WebRTC Video Calling Complete
 
-Next Task
+✅ Media Controls Complete
 
-Create:
-- frontend/src/webrtc/rtcConfig.js
-- frontend/src/webrtc/media.js
-- frontend/src/webrtc/peerConnection.js
+---
+
+# Important Architectural Decision
+
+CallContext remains the single source of truth for the entire calling subsystem.
+
+Business logic stays inside CallContext.
+
+UI components remain presentation-only and dispatch actions without directly mutating state.
+
+The architecture cleanly separates:
+
+- UI
+- Call State
+- Socket Signaling
+- WebRTC
+- Media Management
+
+making future expansion significantly easier.
+
+---
+
+# Next Task
+
+Begin production-quality improvements:
+
+- TURN server integration
+- Connection recovery
+- Call duration synchronization
+- Better ICE candidate buffering
+- Device selection
+- Screen sharing
+- Call history
+- Network quality indicators
+- Group calling foundation

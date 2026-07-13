@@ -1,9 +1,42 @@
 import "./css/VideoCall.css";
 
+import {
+    useEffect,
+    useRef
+} from "react";
+
+import { useCall } from "../../context/CallContext";
+
 function VideoCall({
     user,
-    status
+    status,
+    localStream,
+    remoteStream
 }) {
+
+    const localVideoRef = useRef(null);
+    const {
+        remoteMediaRef
+    } = useCall();
+
+    useEffect(() => {
+
+        if(localVideoRef.current){
+            localVideoRef.current.srcObject = localStream || null;
+        }
+
+    }, [localStream]);
+
+
+
+    useEffect(() => {
+
+        if(remoteMediaRef.current){
+            remoteMediaRef.current.srcObject =
+                remoteStream || null;
+        }
+
+    }, [remoteStream]);
 
     // ─── Render ─────────────────────────────────────
     return (
@@ -16,28 +49,68 @@ function VideoCall({
 
                 <div className="remote-video">
 
-                    <div className="remote-placeholder">
-                        <ion-icon name="videocam-outline"/>
-                        <h2>
-                            {user?.name || "Unknown User"}
-                        </h2>
+    {
+        remoteStream ?
 
-                        <p>
-                            Waiting for video...
-                        </p>
+        (
+            <video
+                ref={(element)=>{
 
-                    </div>
+                    if(element){
 
-                </div>
+                        remoteMediaRef.current = element;
+
+                    }
+
+                }}
+                autoPlay
+                playsInline
+                className="remote-video-element"
+            />
+        )
+
+        :
+
+        (
+            <div className="remote-placeholder">
+
+                            <ion-icon name="videocam-outline"/>
+
+                            <h2>
+                                {user?.name || "Unknown User"}
+                            </h2>
+
+                            <p> Waiting for video... </p>
+                        </div>
+                    )
+                }
+            </div>
 
                 {/* Local Preview */}
 
                 <div className="local-video">
 
-                    <div className="local-placeholder">
-                        You
-                    </div>
+                    {
+                        localStream ?
 
+                        (
+                            <video
+                                ref={localVideoRef}
+                                autoPlay
+                                muted
+                                playsInline
+                                className="local-video-element"
+                            />
+                        )
+
+                        :
+
+                        (
+                            <div className="local-placeholder">
+                                You
+                            </div>
+                        )
+                    }
                 </div>
 
             </div>

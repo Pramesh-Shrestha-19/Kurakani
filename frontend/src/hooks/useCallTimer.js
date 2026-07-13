@@ -1,28 +1,30 @@
 import { useEffect, useState } from "react";
 import { CALL_STATUS } from "../constants/callConstants";
 
-export default function useCallTimer(status) {
+export default function useCallTimer(status, callStartTimeRef) {
 
-    const [seconds, setSeconds] = useState(0);
+    const [, forceTick] = useState(0);
 
     useEffect(() => {
 
         if (status !== CALL_STATUS.CONNECTED) {
-
-            setSeconds(0);
             return;
-
         }
 
         const interval = setInterval(() => {
-
-            setSeconds(prev => prev + 1);
-
+            forceTick(prev => prev + 1);
         }, 1000);
 
         return () => clearInterval(interval);
 
     }, [status]);
+
+    const startTime = callStartTimeRef?.current;
+
+    const seconds =
+        status === CALL_STATUS.CONNECTED && startTime
+            ? Math.floor((Date.now() - startTime) / 1000)
+            : 0;
 
     const hrs = String(Math.floor(seconds / 3600)).padStart(2, "0");
     const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");

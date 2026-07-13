@@ -28,6 +28,7 @@ export const initializeSocket = (io) => {
 
     });
 
+
     // ─── Chat ──────────────────────────────────────
 
     socket.on("join_chat", (chatId) => {
@@ -65,6 +66,9 @@ export const initializeSocket = (io) => {
 
     socket.on("call:start", (payload) => {
         console.log("call:start received", payload);
+
+      console.log("Receiver:", payload.receiverId);
+      console.log("Map:", [...onlineUsers.entries()]);
 
         const receiverSocket = onlineUsers.get(payload.receiverId);
 
@@ -179,6 +183,30 @@ export const initializeSocket = (io) => {
       activeCalls.delete(payload.callerId);
       if (!receiverSocket) return;
       io.to(receiverSocket).emit("call:ended", payload);
+    });
+
+    socket.on("webrtc:offer", ({ receiverId, offer }) => {
+        const receiverSocket = onlineUsers.get(receiverId);
+        if (!receiverSocket) return;
+        io.to(receiverSocket).emit("webrtc:offer", {
+            offer,
+        });
+    });
+
+    socket.on("webrtc:answer", ({ receiverId, answer }) => {
+        const receiverSocket = onlineUsers.get(receiverId);
+        if (!receiverSocket) return;
+        io.to(receiverSocket).emit("webrtc:answer", {
+            answer,
+        });
+    });
+
+    socket.on("webrtc:ice-candidate", ({ receiverId, candidate }) => {
+        const receiverSocket = onlineUsers.get(receiverId);
+        if (!receiverSocket) return;
+        io.to(receiverSocket).emit("webrtc:ice-candidate", {
+            candidate,
+        });
     });
 
     // ─── Disconnect ────────────────────────────────
