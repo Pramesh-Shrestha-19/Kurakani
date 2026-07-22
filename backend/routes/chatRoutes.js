@@ -1,5 +1,6 @@
 import express from "express";
 import Chat from "../models/Chat.js";
+import Message from "../models/Message.js";
 import protect from "../middleware/authMiddleware.js";
 import mongoose from "mongoose";
 
@@ -58,9 +59,35 @@ router.get("/", protect, async (req, res) => {
       members: req.user._id
     })
       .populate("members", "-password")
-      .sort({ updatedAt: -1 });
+      .sort({ updatedAt: -1 })
+      .lean();
 
-    res.json(chats);
+    const chatIds = chats.map((c) => c._id);
+
+    const unreadCounts = await Message.aggregate([
+      {
+        $match: {
+          chatId: { $in: chatIds },
+          seen: false,
+          sender: { $ne: req.user._id }
+        }
+      },
+      {
+        $group: { _id: "$chatId", count: { $sum: 1 } }
+      }
+    ]);
+
+    const countMap = {};
+    unreadCounts.forEach((u) => {
+      countMap[u._id.toString()] = u.count;
+    });
+
+    const chatsWithUnread = chats.map((c) => ({
+      ...c,
+      unreadCount: countMap[c._id.toString()] || 0
+    }));
+
+    res.json(chatsWithUnread);
   } catch (error) {
     res.status(500).json({
       message: error.message

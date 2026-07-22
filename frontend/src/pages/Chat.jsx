@@ -166,9 +166,15 @@ export default function Chat() {
       setChats((prev) => {
         const exists = prev.find((c) => c._id === message.chatId);
         if (!exists) return prev;
+        const isActive = message.chatId === activeChat?._id;
         const updated = prev.map((c) =>
           c._id === message.chatId
-            ? { ...c, lastMessage: message.text, updatedAt: new Date().toISOString() }
+            ? {
+                ...c,
+                lastMessage: message.text,
+                updatedAt: new Date().toISOString(),
+                unreadCount: isActive ? 0 : (c.unreadCount || 0) + 1
+              }
             : c
         );
         const target = updated.find((c) => c._id === message.chatId);
@@ -376,7 +382,14 @@ export default function Chat() {
                 <div
                   key={chat._id}
                   className={`chat-item${activeChat?._id === chat._id ? " active" : ""}`}
-                  onClick={() => setActiveChat(chat)}
+                  onClick={() => {
+                    setActiveChat(chat);
+                    setChats((prev) =>
+                      prev.map((c) =>
+                        c._id === chat._id ? { ...c, unreadCount: 0 } : c
+                      )
+                    );
+                  }}
                 >
                   <div className="chat-avatar">{other?.name?.charAt(0) || "U"}</div>
                   <div className="chat-info">
@@ -387,7 +400,10 @@ export default function Chat() {
                       </div>
                     </div>
                     <div className="chat-bottom">
-                      <span className="chat-preview">Click to open chat</span>
+                      <span className="chat-preview">{chat.lastMessage || "No messages yet"}</span>
+                      {chat.unreadCount > 0 && (
+                        <span className="badge">{chat.unreadCount}</span>
+                      )}
                     </div>
                   </div>
                 </div>
