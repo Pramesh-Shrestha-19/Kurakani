@@ -630,3 +630,116 @@ body { font-family: 'Nunito', sans-serif; }
     display: none;
   }
 }
+
+/* ══════════════ DARK THEME ══════════════ */
+.app.theme-dark { background: #0b141a; }
+
+.app.theme-dark .nav { background: #202c33; }
+.app.theme-dark .nav-avatar { color: #202c33; }
+.app.theme-dark .nav-item.active { background: rgba(255,255,255,0.1); }
+
+.app.theme-dark .sidebar { background: #111b21; border-right: 1px solid #2a3942; }
+.app.theme-dark .sidebar-header { border-bottom: 1px solid #2a3942; }
+.app.theme-dark .sidebar-header h1 { color: #e9edef; }
+.app.theme-dark .search-box input { background: #202c33; color: #e9edef; }
+.app.theme-dark .search-box input::placeholder { color: #8696a0; }
+.app.theme-dark .search-box input:focus { background: #2a3942; }
+.app.theme-dark .search-icon { color: #8696a0; }
+
+.app.theme-dark .filter-tabs { border-bottom: 1px solid #2a3942; }
+.app.theme-dark .filter-tab:not(.active) { background: #202c33; color: #8696a0; }
+.app.theme-dark .filter-tab:not(.active):hover { background: #2a3942; }
+
+.app.theme-dark .chat-item { border-bottom: 1px solid #1a2329; }
+.app.theme-dark .chat-item:hover { background: #202c33; }
+.app.theme-dark .chat-item.active { background: #2a3942; }
+.app.theme-dark .chat-name { color: #e9edef; }
+.app.theme-dark .chat-preview,
+.app.theme-dark .chat-time { color: #8696a0; }
+
+.app.theme-dark .chat-window { background: #0b141a; }
+.app.theme-dark .chat-window::before { opacity: 0.4; filter: invert(1) brightness(0.6); }
+
+.app.theme-dark .chat-header { background: #202c33; border-bottom: 1px solid #2a3942; }
+.app.theme-dark .header-name { color: #e9edef; }
+.app.theme-dark .action-btn { color: #aebac1; }
+.app.theme-dark .action-btn:hover { background: #2a3942; }
+
+.app.theme-dark .msg-wrapper.received .bubble { background: #202c33; }
+.app.theme-dark .msg-wrapper.sent .bubble { background: #005c4b; }
+.app.theme-dark .bubble-text { color: #e9edef; }
+.app.theme-dark .bubble-time { color: #8696a0; }
+.app.theme-dark .date-chip { background: rgba(32,44,51,0.85); color: #cfd9de; }
+
+.app.theme-dark .input-bar { background: #202c33; }
+.app.theme-dark .msg-input { background: #2a3942; color: #e9edef; }
+.app.theme-dark .msg-input::placeholder { color: #8696a0; }
+
+.app.theme-dark .right-panel { background: #111b21; border-left: 1px solid #2a3942; }
+.app.theme-dark .panel-header { border-bottom: 1px solid #2a3942; color: #8696a0; }
+.app.theme-dark .panel-item { border-bottom: 1px solid #1a2329; }
+.app.theme-dark .panel-item:hover { background: #202c33; }
+.app.theme-dark .panel-item-label { color: #8696a0; }
+.app.theme-dark .toggle-label { color: #e9edef; }
+.app.theme-dark .chip { background: #202c33; color: #8696a0; }
+.app.theme-dark .chip:hover { background: #2a3942; }
+.app.theme-dark .chip.selected { background: #005c4b; color: #06cf9c; }
+.app.theme-dark .toggle { background: #2a3942; }
+
+/* ══════════════ OCEAN THEME ══════════════ */
+.app.theme-ocean { background: #eaf6fb; }
+
+.app.theme-ocean .nav { background: #0ea5e9; }
+.app.theme-ocean .nav-avatar { color: #0ea5e9; }
+
+.app.theme-ocean .sidebar { background: #ffffff; border-right: 1px solid #cfeaf5; }
+.app.theme-ocean .sidebar-header { border-bottom: 1px solid #e3f4fa; }
+.app.theme-ocean .sidebar-header h1 { color: #0b2b3c; }
+.app.theme-ocean .search-box input { background: #eaf6fb; color: #0b2b3c; }
+.app.theme-ocean .search-box input:focus { background: #dcf0f9; }
+.app.theme-ocean .search-icon { color: #6ea7bb; }
+
+.app.theme-ocean .filter-tab.active { background: #0ea5e9; }
+.app.theme-ocean .filter-tab:not(.active) { background: #eaf6fb; color: #4a6b78; }
+.app.theme-ocean .filter-tab:not(.active):hover { background: #dcf0f9; }
+
+.app.theme-ocean .chat-item:hover { background: #f0f9fc; }
+.app.theme-ocean .chat-item.active { background: #dcf0f9; }
+.app.theme-ocean .chat-name { color: #0b2b3c; }
+.app.theme-ocean .chat-preview,
+.app.theme-ocean .chat-time { color: #6ea7bb; }
+
+.app.theme-ocean .chat-window { background: #dbeef7; }
+.app.theme-ocean .chat-window::before { filter: hue-rotate(150deg) saturate(1.5); }
+
+.app.theme-ocean .chat-header { background: #eaf6fb; border-bottom: 1px solid #cfeaf5; }
+.app.theme-ocean .header-avatar { background: #0ea5e9; }
+.app.theme-ocean .header-name { color: #0b2b3c; }
+.app.theme-ocean .header-status { color: #0ea5e9; }
+.app.theme-ocean .action-btn { color: #3a7f95; }
+.app.theme-ocean .action-btn:hover { background: #dcf0f9; }
+
+.app.theme-ocean .msg-wrapper.received .bubble { background: #ffffff; }
+.app.theme-ocean .msg-wrapper.sent .bubble { background: #cdeffd; }
+.app.theme-ocean .bubble-text { color: #0b2b3c; }
+.app.theme-ocean .bubble-time { color: #6ea7bb; }
+.app.theme-ocean .date-chip { background: rgba(255,255,255,0.85); color: #3a7f95; }
+
+.app.theme-ocean .input-bar { background: #eaf6fb; }
+.app.theme-ocean .attach-btn,
+.app.theme-ocean .send-btn { background: #0ea5e9; }
+.app.theme-ocean .attach-btn:hover,
+.app.theme-ocean .send-btn:hover { background: #0284c7; }
+.app.theme-ocean .msg-input { background: #ffffff; color: #0b2b3c; }
+
+.app.theme-ocean .right-panel { background: #ffffff; border-left: 1px solid #cfeaf5; }
+.app.theme-ocean .panel-header { border-bottom: 1px solid #e3f4fa; color: #6ea7bb; }
+.app.theme-ocean .panel-item { border-bottom: 1px solid #f0f9fc; }
+.app.theme-ocean .panel-item:hover { background: #f0f9fc; }
+.app.theme-ocean .panel-item-label { color: #6ea7bb; }
+.app.theme-ocean .toggle-label { color: #0b2b3c; }
+.app.theme-ocean .chip { background: #eaf6fb; color: #4a6b78; }
+.app.theme-ocean .chip:hover { background: #dcf0f9; }
+.app.theme-ocean .chip.selected { background: #cdeffd; color: #0ea5e9; }
+.app.theme-ocean .toggle { background: #dcf0f9; }
+.app.theme-ocean .toggle.on { background: #0ea5e9; }

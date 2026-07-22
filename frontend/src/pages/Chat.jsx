@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import socket from "../socket/socket";
 import "../css/Chat.css";
+import EmojiPicker from "emoji-picker-react";
 import { useNavigate } from "react-router-dom";
 import CallWindow from "../components/call/CallWindow";
 import {
@@ -25,6 +26,7 @@ export default function Chat() {
   const [activeChat, setActiveChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const [filter, setFilter] = useState("All");
   const [mute, setMute] = useState(false);
@@ -264,7 +266,7 @@ export default function Chat() {
   const currentUserId = (user._id || user.id)?.toString();
 
   return (
-    <div className="app">
+    <div className={`app ${theme !== "Default" ? `theme-${theme.toLowerCase()}` : ""}`}>
 
       {/* NAV */}
       <nav className="nav">
@@ -467,10 +469,24 @@ export default function Chat() {
         </div>
 
         {activeChat && (
-          <div className="input-bar">
-            <button className="attach-btn">
-              <ion-icon name="add-outline"></ion-icon>
+          <div className="input-bar" style={{ position: "relative" }}>
+            <button
+              className="attach-btn"
+              onClick={() => setShowEmojiPicker((prev) => !prev)}
+            >
+              <ion-icon name="happy-outline"></ion-icon>
             </button>
+
+            {showEmojiPicker && (
+              <div style={{ position: "absolute", bottom: "60px", left: "16px", zIndex: 10 }}>
+                <EmojiPicker
+                  onEmojiClick={(emojiData) => {
+                    setInput((prev) => prev + emojiData.emoji);
+                    setShowEmojiPicker(false);
+                  }}
+                />
+              </div>
+            )}
             <textarea
               className="msg-input"
               rows={1}
