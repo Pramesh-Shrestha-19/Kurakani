@@ -162,6 +162,19 @@ export default function Chat() {
       if (message.chatId === activeChat?._id) {
         setMessages((prev) => [...prev, message]);
       }
+
+      setChats((prev) => {
+        const exists = prev.find((c) => c._id === message.chatId);
+        if (!exists) return prev;
+        const updated = prev.map((c) =>
+          c._id === message.chatId
+            ? { ...c, lastMessage: message.text, updatedAt: new Date().toISOString() }
+            : c
+        );
+        const target = updated.find((c) => c._id === message.chatId);
+        const rest = updated.filter((c) => c._id !== message.chatId);
+        return [target, ...rest];
+      });
     });
 
     return () => {
@@ -214,6 +227,15 @@ export default function Chat() {
 
     setMessages((prev) => [...prev, res.data]);
     setInput("");
+
+    setChats((prev) => {
+      const updated = prev.map((c) =>
+        c._id === activeChat._id ? { ...c, lastMessage: text, updatedAt: new Date().toISOString() } : c
+      );
+      const target = updated.find((c) => c._id === activeChat._id);
+      const rest = updated.filter((c) => c._id !== activeChat._id);
+      return [target, ...rest];
+    });
     } catch (err) {
       console.log(err);
     }

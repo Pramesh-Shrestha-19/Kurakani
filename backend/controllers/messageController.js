@@ -1,4 +1,5 @@
 import Message from "../models/Message.js";
+import Chat from "../models/Chat.js";
 
 // Send Message
 export const sendMessage = async (req, res) => {
@@ -11,6 +12,12 @@ export const sendMessage = async (req, res) => {
       text,
       replyTo: replyTo || null,
     });
+
+    await Chat.findByIdAndUpdate(chatId, {
+      lastMessage: text,
+    });
+
+    res.status(201).json(message);
 
     res.status(201).json(message);
   } catch (error) {
