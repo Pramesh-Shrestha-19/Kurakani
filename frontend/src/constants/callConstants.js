@@ -21,3 +21,10 @@ export const CALL_STATUS = {
     ENDED: "ended",
     MISSED: "missed",
 };
+
+// Statuses stored in a call-log message (Message.callInfo.status)
+export const CALL_LOG_STATUS = {
+    COMPLETED: "completed",
+    MISSED: "missed",
+    REJECTED: "rejected",
+};

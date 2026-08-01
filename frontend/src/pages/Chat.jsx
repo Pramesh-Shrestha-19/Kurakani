@@ -5,6 +5,7 @@ import "../css/Chat.css";
 import EmojiPicker from "emoji-picker-react";
 import { useNavigate } from "react-router-dom";
 import CallWindow from "../components/call/CallWindow";
+import CallMessage from "../components/call/CallMessage";
 import {
     CALL_TYPE,
     CALL_STATUS
@@ -35,7 +36,7 @@ export default function Chat() {
 
   const endRef = useRef(null);
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  const [user] = useState(() => JSON.parse(localStorage.getItem("user")));
 
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [typingUser, setTypingUser] = useState(null);
@@ -160,18 +161,31 @@ export default function Chat() {
       console.log("Received:", message);
 
       if (message.chatId === activeChat?._id) {
-        setMessages((prev) => [...prev, message]);
+        setMessages((prev) =>
+          prev.some((m) => m._id === message._id) ? prev : [...prev, message]
+        );
       }
 
       setChats((prev) => {
         const exists = prev.find((c) => c._id === message.chatId);
         if (!exists) return prev;
         const isActive = message.chatId === activeChat?._id;
+
+        const previewText = message.type === "call"
+          ? message.callInfo?.status === "missed"
+            ? "Missed call"
+            : message.callInfo?.status === "rejected"
+            ? "Call declined"
+            : message.callInfo?.callType === "video"
+            ? "Video call"
+            : "Voice call"
+          : message.text;
+
         const updated = prev.map((c) =>
           c._id === message.chatId
             ? {
                 ...c,
-                lastMessage: message.text,
+                lastMessage: previewText,
                 updatedAt: new Date().toISOString(),
                 unreadCount: isActive ? 0 : (c.unreadCount || 0) + 1
               }
@@ -442,14 +456,14 @@ export default function Chat() {
           
           <button
               className="action-btn"
-                  onClick={() => startVoiceCall(contact)}
+                  onClick={() => startVoiceCall(contact, activeChat._id)}
           >
               <ion-icon name="call-outline"></ion-icon>
           </button>
 
           <button
               className="action-btn"
-                  onClick={() => startVideoCall(contact)}
+                  onClick={() => startVideoCall(contact, activeChat._id)}
           >
               <ion-icon name="videocam-outline"></ion-icon>
           </button>
@@ -473,6 +487,19 @@ export default function Chat() {
           )}
 
           {messages.map((m) => {
+
+            if (m.type === "call") {
+              return (
+                <div
+                  key={m._id}
+                  className="msg-wrapper received"
+                  style={{ justifyContent: "center" }}
+                >
+                  <CallMessage callInfo={m.callInfo} />
+                </div>
+              );
+            }
+
             const senderId =
               m.sender && typeof m.sender === "object"
                 ? m.sender._id?.toString()

@@ -1,7 +1,55 @@
+import Message from "../models/Message.js";
+import Chat from "../models/Chat.js";
+
 const onlineUsers = new Map();
 const pendingCalls = new Map();
 const activeCalls = new Map();
 const callTimeouts = new Map();
+const callSessions = new Map(); // callId -> { chatId, callType, callerId, receiverId, startedAt }
+
+const logCall = async ({ io, chatId, callType, status, duration = 0, startedAt, endedAt, callerId, receiverId }) => {
+    if (!chatId) return;
+
+    try {
+        const message = await Message.create({
+            chatId,
+            sender: null,
+            text: "",
+            type: "call",
+            callInfo: {
+                callType,
+                status,
+                duration,
+                startedAt,
+                endedAt
+            }
+        });
+
+        await Chat.findByIdAndUpdate(chatId, {
+            lastMessage: status === "missed"
+                ? "Missed call"
+                : status === "rejected"
+                ? "Call declined"
+                : callType === "video"
+                ? "Video call"
+                : "Voice call"
+        });
+
+        if (io) {
+            const callerSocket = onlineUsers.get(callerId);
+            const receiverSocket = onlineUsers.get(receiverId);
+
+            if (callerSocket) io.to(callerSocket).emit("receive_message", message);
+            if (receiverSocket && receiverSocket !== callerSocket) {
+                io.to(receiverSocket).emit("receive_message", message);
+            }
+        }
+
+        return message;
+    } catch (error) {
+        console.error("Failed to log call:", error.message);
+    }
+};
 
 export const initializeSocket = (io) => {
 
@@ -95,16 +143,41 @@ export const initializeSocket = (io) => {
             return;
         }
 
+        // Track this call's session info for logging later
+        callSessions.set(payload.callId, {
+            chatId: payload.chatId || null,
+            callType: payload.callType,
+            callerId: payload.callerId,
+            receiverId: payload.receiverId,
+            initiatedAt: new Date()
+        });
+
         // Reserve receiver while phone is ringing
         pendingCalls.set(payload.receiverId, payload.callId);
 
-        const timeout = setTimeout(() => {
+        const timeout = setTimeout(async () => {
 
             // Remove pending call
             pendingCalls.delete(payload.receiverId);
 
             // Remove stored timeout
             callTimeouts.delete(payload.callId);
+
+            const session = callSessions.get(payload.callId);
+            callSessions.delete(payload.callId);
+
+            if (session) {
+                await logCall({
+                    io,
+                    chatId: session.chatId,
+                    callType: session.callType,
+                    status: "missed",
+                    startedAt: session.initiatedAt || new Date(),
+                    endedAt: new Date(),
+                    callerId: session.callerId,
+                    receiverId: session.receiverId
+                });
+            }
 
             // Notify caller
             const callerSocket = onlineUsers.get(payload.callerId);
@@ -127,11 +200,15 @@ export const initializeSocket = (io) => {
         io.to(receiverSocket).emit("call:incoming", payload);
     });
 
+
+
     socket.on("call:ringing", (payload) => {
         const callerSocket = onlineUsers.get(payload.callerId);
         if (!callerSocket) return;
         io.to(callerSocket).emit("call:ringing", payload);
     });
+
+
 
     socket.on("call:accept", (payload) => {
 
@@ -152,16 +229,24 @@ export const initializeSocket = (io) => {
         activeCalls.set(payload.receiverId, callId);
         activeCalls.set(payload.callerId, callId);
 
+        const session = callSessions.get(callId);
+        if (session) {
+            session.startedAt = new Date();
+            if (payload.chatId) session.chatId = payload.chatId;
+        }
+
         if (!callerSocket) return;
 
         io.to(callerSocket).emit("call:accepted", payload);
 
     });
 
-    socket.on("call:reject", (payload) => {
+
+
+    socket.on("call:reject", async (payload) => {
       const receiverSocket = onlineUsers.get(payload.receiverId);
 
-      const callId = pendingCalls.get(payload.receiverId);
+      const callId = pendingCalls.get(payload.callerId);
 
       if (callId) {
           const timeout = callTimeouts.get(callId);
@@ -170,20 +255,67 @@ export const initializeSocket = (io) => {
               clearTimeout(timeout);
               callTimeouts.delete(callId);
           }
+
+          const session = callSessions.get(callId);
+          callSessions.delete(callId);
+
+          if (session) {
+              await logCall({
+                  io,
+                  chatId: session.chatId || payload.chatId,
+                  callType: session.callType || payload.callType,
+                  status: "rejected",
+                  startedAt: session.initiatedAt || new Date(),
+                  endedAt: new Date(),
+                  callerId: session.callerId || payload.callerId,
+                  receiverId: session.receiverId || payload.receiverId
+              });
+          }
       }
 
-      pendingCalls.delete(payload.receiverId);
+      pendingCalls.delete(payload.callerId);
       if (!receiverSocket) return;
       io.to(receiverSocket).emit("call:rejected", payload);
     });
 
-    socket.on("call:end", (payload) => {
+
+
+    socket.on("call:end", async (payload) => {
       const receiverSocket = onlineUsers.get(payload.receiverId);
+
+      const callId = activeCalls.get(payload.callerId) || activeCalls.get(payload.receiverId);
+
       activeCalls.delete(payload.receiverId);
       activeCalls.delete(payload.callerId);
+
+      if (callId) {
+          const session = callSessions.get(callId);
+          callSessions.delete(callId);
+
+          if (session) {
+              const endedAt = new Date();
+              const startedAt = session.startedAt || endedAt;
+              const duration = Math.max(0, Math.floor((endedAt - startedAt) / 1000));
+
+              await logCall({
+                  io,
+                  chatId: session.chatId || payload.chatId,
+                  callType: session.callType || payload.callType,
+                  status: "completed",
+                  duration,
+                  startedAt,
+                  endedAt,
+                  callerId: session.callerId || payload.callerId,
+                  receiverId: session.receiverId || payload.receiverId
+              });
+          }
+      }
+
       if (!receiverSocket) return;
       io.to(receiverSocket).emit("call:ended", payload);
     });
+
+
 
     socket.on("webrtc:offer", ({ receiverId, offer }) => {
         const receiverSocket = onlineUsers.get(receiverId);
@@ -193,6 +325,8 @@ export const initializeSocket = (io) => {
         });
     });
 
+
+
     socket.on("webrtc:answer", ({ receiverId, answer }) => {
         const receiverSocket = onlineUsers.get(receiverId);
         if (!receiverSocket) return;
@@ -200,6 +334,8 @@ export const initializeSocket = (io) => {
             answer,
         });
     });
+
+
 
     socket.on("webrtc:ice-candidate", ({ receiverId, candidate }) => {
         const receiverSocket = onlineUsers.get(receiverId);
@@ -209,14 +345,55 @@ export const initializeSocket = (io) => {
         });
     });
 
+
+
     // ─── Disconnect ────────────────────────────────
 
     socket.on("disconnect", () => {
 
+      let disconnectedUserId = null;
+
       for (const [userId, socketId] of onlineUsers.entries()) {
         if (socketId === socket.id) {
+          disconnectedUserId = userId;
           onlineUsers.delete(userId);
           break;
+        }
+      }
+
+      if (disconnectedUserId) {
+
+        // Clean up any pending call this user was ringing for
+        const pendingCallId = pendingCalls.get(disconnectedUserId);
+        if (pendingCallId) {
+            const timeout = callTimeouts.get(pendingCallId);
+            if (timeout) {
+                clearTimeout(timeout);
+                callTimeouts.delete(pendingCallId);
+            }
+            callSessions.delete(pendingCallId);
+            pendingCalls.delete(disconnectedUserId);
+        }
+
+        // Clean up any active call and notify the other party
+        const activeCallId = activeCalls.get(disconnectedUserId);
+        if (activeCallId) {
+
+            const session = callSessions.get(activeCallId);
+            callSessions.delete(activeCallId);
+
+            // Find the other participant in this call and clear their entry too
+            for (const [uid, cid] of activeCalls.entries()) {
+                if (cid === activeCallId && uid !== disconnectedUserId) {
+                    const otherSocket = onlineUsers.get(uid);
+                    if (otherSocket) {
+                        io.to(otherSocket).emit("call:ended", { receiverId: uid });
+                    }
+                    activeCalls.delete(uid);
+                }
+            }
+
+            activeCalls.delete(disconnectedUserId);
         }
       }
 

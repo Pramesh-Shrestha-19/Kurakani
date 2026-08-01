@@ -118,16 +118,18 @@ function CallWindow()
                             }
                         </div>
 
-                        <CallControls
-                            type={callType}
-                            controls={controls}
-                            actions={{
-                                onMute: toggleMute,
-                                onSpeaker: toggleSpeaker,
-                                onCamera: toggleCamera,
-                                onEnd: () => setShowEndDialog(true)
-                            }}
-                        />
+                        {callStatus !== CALL_STATUS.INCOMING && (
+                            <CallControls
+                                type={callType}
+                                controls={controls}
+                                actions={{
+                                    onMute: toggleMute,
+                                    onSpeaker: toggleSpeaker,
+                                    onCamera: toggleCamera,
+                                    onEnd: () => setShowEndDialog(true)
+                                }}
+                            />
+                        )}
 
                         <EndCallDialog
                             open={showEndDialog}

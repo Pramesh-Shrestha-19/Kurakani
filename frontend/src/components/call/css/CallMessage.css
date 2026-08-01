@@ -1,0 +1,52 @@
+.call-message {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    max-width: fit-content;
+    margin: 4px 0;
+}
+
+.call-message-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--call-primary, #14b8b1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.call-message-icon ion-icon {
+    color: #fff;
+    font-size: 17px;
+}
+
+.call-message.missed .call-message-icon {
+    background: var(--call-danger, #ef4444);
+}
+
+.call-message-info {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.3;
+}
+
+.call-message-label {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #111b21;
+}
+
+.call-message.missed .call-message-label {
+    color: #ef4444;
+}
+
+.call-message-meta {
+    font-size: 11.5px;
+    color: #8696a0;
+}

@@ -11,12 +11,12 @@ const messageSchema = new mongoose.Schema(
     sender: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true
+      required: false
     },
 
     text: {
       type: String,
-      required: true
+      default: ""
     },
 
     seen: {
@@ -28,6 +28,20 @@ const messageSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Message",
       default: null
+    },
+
+    type: {
+      type: String,
+      enum: ["text", "call"],
+      default: "text"
+    },
+
+    callInfo: {
+      callType: { type: String, enum: ["voice", "video"] },
+      status: { type: String, enum: ["completed", "missed", "rejected"] },
+      duration: { type: Number, default: 0 },
+      startedAt: Date,
+      endedAt: Date
     }
   },
   {

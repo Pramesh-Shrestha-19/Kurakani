@@ -72,6 +72,7 @@ export function CallProvider({ children }) {
     const currentUserRef = useRef(null);
     const callStartTimeRef = useRef(null);
     const callTypeRef = useRef(CALL_TYPE.VOICE);
+    const chatIdRef = useRef(null);
 
     // ─── WebRTC Helpers ───────────────────────────────
 
@@ -348,7 +349,7 @@ export function CallProvider({ children }) {
 
     // ─── Actions ────────────────────────────────────
 
-    const startVoiceCall = (contact) => {
+    const startVoiceCall = (contact, chatId) => {
 
         console.log("startVoiceCall()", contact);
 
@@ -361,6 +362,7 @@ export function CallProvider({ children }) {
         currentUserRef.current = contact;
         setCallType(CALL_TYPE.VOICE);
         callTypeRef.current = CALL_TYPE.VOICE;
+        chatIdRef.current = chatId || null;
         setCallStatus(CALL_STATUS.CALLING);
         setWindowState(WINDOW_STATE.NORMAL);
         setIsOpen(true);
@@ -375,7 +377,8 @@ export function CallProvider({ children }) {
             callerName: user.name,
             callerEmail: user.email,
             receiverId: contact._id,
-            callType: CALL_TYPE.VOICE
+            callType: CALL_TYPE.VOICE,
+            chatId: chatId || null
         });
 
         console.log("Sending call:start", {
@@ -387,12 +390,13 @@ export function CallProvider({ children }) {
 
     };
 
-    const startVideoCall = (contact) => {
+    const startVideoCall = (contact, chatId) => {
 
         setCurrentUser(contact);
         currentUserRef.current = contact;
         setCallType(CALL_TYPE.VIDEO);
         callTypeRef.current = CALL_TYPE.VIDEO;
+        chatIdRef.current = chatId || null;
         setCallStatus(CALL_STATUS.CALLING);
         setWindowState(WINDOW_STATE.NORMAL);
         setIsOpen(true);
@@ -405,7 +409,8 @@ export function CallProvider({ children }) {
             callerName: user.name,
             callerEmail: user.email,
             receiverId: contact._id,
-            callType: CALL_TYPE.VIDEO
+            callType: CALL_TYPE.VIDEO,
+            chatId: chatId || null
         });
 
     };
@@ -424,6 +429,7 @@ export function CallProvider({ children }) {
 
         setCallType(payload.callType);
         callTypeRef.current = payload.callType;
+        chatIdRef.current = payload.chatId || null;
         setCallStatus(CALL_STATUS.INCOMING);
         setWindowState(WINDOW_STATE.NORMAL);
         setIsOpen(true);
@@ -443,7 +449,8 @@ export function CallProvider({ children }) {
             socket.emit("call:accept", {
                 callerId: currentUserRef.current._id,
                 receiverId: user._id,
-                callType
+                callType,
+                chatId: chatIdRef.current
             });
 
             setCallStatus(CALL_STATUS.CONNECTED);
@@ -459,10 +466,10 @@ export function CallProvider({ children }) {
     const rejectCall = () => {
 
         socket.emit("call:reject", {
-            callId: crypto.randomUUID(),
             callerId: user._id,
             receiverId: currentUserRef.current._id,
-            callType
+            callType,
+            chatId: chatIdRef.current
         });
 
         setCallStatus(CALL_STATUS.ENDED);
@@ -476,7 +483,8 @@ export function CallProvider({ children }) {
         socket.emit("call:end", {
             callerId: user._id,
             receiverId: currentUserRef.current._id,
-            callType
+            callType,
+            chatId: chatIdRef.current
         });
 
         setCallStatus(CALL_STATUS.ENDED);
@@ -494,6 +502,7 @@ export function CallProvider({ children }) {
         setWindowState(WINDOW_STATE.NORMAL);
 
         callStartTimeRef.current = null;
+        chatIdRef.current = null;
 
         setCallType(CALL_TYPE.VOICE);
         callTypeRef.current = CALL_TYPE.VOICE;
