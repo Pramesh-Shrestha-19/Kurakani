@@ -9,12 +9,13 @@ function Login() {
   const { login } = useAuth();
   const API = import.meta.env.VITE_API_URL;
   
-
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showRegPassword, setShowRegPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [loginError, setLoginError] = useState("");
@@ -23,6 +24,13 @@ function Login() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+
+    if (password !== confirmPassword) {
+      setRegisterError("Passwords do not match");
+      setRegisterSuccess("");
+      return;
+    }
+
     const res = await fetch(`${API}/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -175,6 +183,21 @@ function Login() {
                     className="toggle-password"
                     name={showRegPassword ? "eye-off-outline" : "eye-outline"}
                     onClick={() => setShowRegPassword(!showRegPassword)}
+                  ></ion-icon>
+                </div>
+
+                <div className="input-group password-group">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                  <label>Confirm Password</label>
+                  <ion-icon
+                    className="toggle-password"
+                    name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   ></ion-icon>
                 </div>
 
